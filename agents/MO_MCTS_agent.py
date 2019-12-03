@@ -5,8 +5,10 @@ from contracts import Agent, GameState
 
 
 class MOMCTSAgent(Agent):
-    def __init__(self, max_iteration: int):
+    def __init__(self, max_iteration: int, keep_memory: bool = True):
         self.max_iteration = max_iteration
+        self.keep_memory = keep_memory
+        self.memory = dict()
 
     @staticmethod
     def create_node_in_memory(memory, node_hash, available_actions, current_player):
@@ -28,10 +30,11 @@ class MOMCTSAgent(Agent):
 
     def act(self, gs: GameState) -> int:
         root_hash = gs.get_unique_id()
-        memory = dict()
+        memory = self.memory if self.keep_memory else dict()
 
-        MOMCTSAgent.create_node_in_memory(memory, root_hash, gs.get_available_actions(
-            gs.get_active_player()), gs.get_active_player()
+        if root_hash not in memory:
+            MOMCTSAgent.create_node_in_memory(memory, root_hash, gs.get_available_actions(
+                gs.get_active_player()), gs.get_active_player()
                                           )
 
         for i in range(self.max_iteration):

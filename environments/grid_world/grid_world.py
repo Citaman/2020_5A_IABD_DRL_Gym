@@ -20,6 +20,7 @@ class GridWorldGameState(GameState):
         ])  # 0 = Empty, 1 = Wall, 2 = Hole, 3 = Goal
         self.player_pos = np.array([1, 1])
         self.game_over = False
+        self.current_step = 0
         self.scores = np.array([0], dtype=np.float)
         self.available_actions = [0, 1, 2, 3]  # Up Down Left Right
         self.remaining_actions = 50
@@ -45,6 +46,7 @@ class GridWorldGameState(GameState):
         gs_copy.player_pos = self.player_pos.copy()
         gs_copy.game_over = self.game_over
         gs_copy.remaining_actions = self.remaining_actions
+        gs_copy.current_step = self.current_step
         return gs_copy
 
     def step(self, player_index: int, action_index: int):
@@ -58,25 +60,26 @@ class GridWorldGameState(GameState):
 
         target_type = self.world[target_pos[0], target_pos[1]]
 
-        self.scores[player_index] += -0.01
+
         self.remaining_actions -= 1
+        self.current_step += 1
         if target_type == 0:
             self.player_pos = target_pos
         elif target_type == 1:
             pass
         elif target_type == 2:
             self.game_over = True
-            self.scores[player_index] += -1
+            self.scores[player_index] += -1 * (0.99 ** self.current_step)
             return
         elif target_type == 3:
             self.player_pos = target_pos
             self.game_over = True
-            self.scores[player_index] += 1
+            self.scores[player_index] += 1 * (0.99 ** self.current_step)
             return
 
         if self.remaining_actions <= 0:
             self.game_over = True
-            self.scores[player_index] += -1
+            self.scores[player_index] += -1 * (0.99 ** self.current_step)
 
     def get_scores(self) -> np.ndarray:
         return self.scores
