@@ -4,7 +4,7 @@ from runners import run_to_the_end
 
 if __name__ == "__main__":
     gs = GridWorldGameState()
-    agent = RandomRolloutAgent(100000, True)
+    agent = RandomRolloutAgent(1000, True)
 
     print(gs)
     run_to_the_end([agent], gs)

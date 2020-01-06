@@ -46,7 +46,6 @@ class TabQLearningAgent(Agent):
             return
 
         self.r += r
-
         if t:
             self.Q[self.s][self.a] += \
                 self.alpha * (self.r - self.Q[self.s][self.a])

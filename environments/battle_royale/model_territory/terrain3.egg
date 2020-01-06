@@ -1,0 +1,66 @@
+<CoordinateSystem> { Z-up } 
+<Material> Material {
+  <Scalar> diffr { 0.640000 }
+  <Scalar> diffg { 0.640000 }
+  <Scalar> diffb { 0.640000 }
+  <Scalar> specr { 0.500000 }
+  <Scalar> specg { 0.500000 }
+  <Scalar> specb { 0.500000 }
+  <Scalar> shininess { 12.5 }
+  <Scalar> ambr { 1.000000 }
+  <Scalar> ambg { 1.000000 }
+  <Scalar> ambb { 1.000000 }
+  <Scalar> emitr { 0.000000 }
+  <Scalar> emitg { 0.000000 }
+  <Scalar> emitb { 0.000000 }
+}
+
+<Texture> Tex {
+  "./tex/bloc_ground.jpg"
+  <Scalar> envtype { MODULATE }
+  <Scalar> minfilter { LINEAR_MIPMAP_LINEAR }
+  <Scalar> magfilter { LINEAR_MIPMAP_LINEAR }
+  <Scalar> wrap { REPEAT }
+}
+
+  <Group> Plane.001 {
+    <Transform> {
+      <Matrix4> {
+        21.933982849121094 0.0 0.0 0.0 
+        0.0 21.933982849121094 0.0 0.0 
+        0.0 0.0 21.933982849121094 0.0 
+        0.07337149977684021 -0.02902550995349884 0.04690372198820114 1.0 
+      }
+    }
+    
+    <VertexPool> Plane.001 {
+    
+      <Vertex> 0 {-54.481945 -56.066185 1.917503
+        <UV>  {
+          -9.656574 -19.372814 
+        }
+      }
+      <Vertex> 1 {56.234032 -56.066185 1.917503
+        <UV>  {
+          10.155096 -19.372820 
+        }
+      }
+      <Vertex> 2 {56.234032 54.649788 1.917503
+        <UV>  {
+          10.155096 20.372820 
+        }
+      }
+      <Vertex> 3 {-54.481945 54.649788 1.917503
+        <UV>  {
+          -9.656569 20.372820 
+        }
+      }}
+    
+    
+    <Polygon> {
+      <TRef> { Tex }
+      <MRef> { Material }
+      <Normal> {0.000000 0.000000 1.000000}
+      <VertexRef> { 0 1 2 3 <Ref> { Plane.001 }} 
+    }
+  }

@@ -12,7 +12,7 @@ if __name__ == "__main__":
     agent1.epsilon = 0.005
 
     for i in range(100):
-        run_for_n_games_and_print_stats([agent0, agent1], gs, 5000)
+        run_for_n_games_and_print_stats([agent0, agent1], gs, 5)
 
     agent0.epsilon = -1.0
     agent1.epsilon = -1.0
