@@ -25,7 +25,7 @@ class BattleRoyale(GameState, ShowBase):
         self.scores = np.zeros(self.numberofPlayer)
         self.available_actions = list(range(48))
         self.unique_id = ""
-        self.unique_id_vec = np.zeros(24)
+        self.unique_id_vec = np.zeros(7+(numberofPlayer-1)*3+self.numberofGun*3)
 
 
     def player_count(self) -> int:
@@ -81,6 +81,7 @@ class BattleRoyale(GameState, ShowBase):
         #print(self.unique_id)
 
     def set_unique_id_vec(self,id):
+
         self.unique_id_vec[0]= self.players[id].getX()
         self.unique_id_vec[1] = self.players[id].getY()
         self.unique_id_vec[2] = self.players[id].health
@@ -89,21 +90,37 @@ class BattleRoyale(GameState, ShowBase):
         self.unique_id_vec[5] = self.players[id].kill
         self.unique_id_vec[6] = len(self.playerwin)
 
-        number = 6
+        number = 7
         for (i, el) in enumerate(self.players):
-            if i not in self.playersloose and (sqrt(pow(self.players[id].getX() - el.getX(),2)+pow(self.players[id].getY()- el.getY(),2))) <= 20 :
-                i2 = number + i*3
-                self.unique_id_vec[i2] = el.getX()
-                self.unique_id_vec[i2+1] = el.getY()
-                self.unique_id_vec[i2 + 2] = el.health
+            if i is not id:
+                if i not in self.playersloose and (sqrt(pow(self.players[id].getX() - el.getX(),2)+pow(self.players[id].getY()- el.getY(),2))) <= 30 :
+                    #print('if',number,number+1,number+2)
+                    self.unique_id_vec[number] = el.getX()
+                    self.unique_id_vec[number+1] = el.getY()
+                    self.unique_id_vec[number + 2] = el.health
+                    number += 3
+                else:
+                    #print('else',number, number + 1, number + 2)
+                    self.unique_id_vec[number] = 0
+                    self.unique_id_vec[number + 1] = 0
+                    self.unique_id_vec[number + 2] = 0
+                    number += 3
+        for (i, el) in enumerate(self.guns):
+                if (sqrt(pow(self.players[id].getX() - el.getX(), 2) + pow(self.players[id].getY() - el.getY(), 2))) <= 30:
+                    #print('if', number, number + 1, number + 2)
+                    self.unique_id_vec[number] = el.getX()
+                    self.unique_id_vec[number + 1] = el.getY()
+                    self.unique_id_vec[number + 2] = el.type
+                    number += 3
+                else:
+                    #print('else', number, number + 1, number + 2)
+                    self.unique_id_vec[number] = 0
+                    self.unique_id_vec[number + 1] = 0
+                    self.unique_id_vec[number + 2] = 0
+                    number += 3
 
-            else:
-                i2 = number + i*3
-                self.unique_id_vec[i2] = 0
-                self.unique_id_vec[i2 + 1] = 0
-                self.unique_id_vec[i2 + 2] = 0
 
-        #print(self.unique_id_vec)
+        print(self.unique_id_vec)
 
     def get_max_state_count(self) -> int:
         pass
@@ -360,8 +377,9 @@ class BattleRoyale(GameState, ShowBase):
                     #print(self.list_agent[i].playerid)
                     '''AGENT ACTION'''
                     self.set_unique_id(i,el.getX(), el.getY())
-                    self.set_unique_id_vec(i)
-                    action = self.list_agent[0].act(gs=self)
+                    if i == 0:
+                        self.set_unique_id_vec(i)
+                    action = self.list_agent[i].act(gs=self)
 
                     '''try:
                         print(self.list_agent[i].Q)
@@ -410,7 +428,7 @@ class BattleRoyale(GameState, ShowBase):
         #print(self.list_agent)
         print(self.scores)
         for i, agent in enumerate(self.list_agent):
-            self.list_agent[0].observe(rewards[i], self.is_game_over(), i)
+            agent.observe(rewards[i], self.is_game_over(), i)
 
         #print("---------")
 

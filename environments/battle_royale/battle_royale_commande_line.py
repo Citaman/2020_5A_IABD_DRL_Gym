@@ -1,6 +1,5 @@
 import random
-from abc import ABC
-
+from typing import List
 import numpy as np
 from collections import Counter
 
@@ -15,9 +14,25 @@ from multiprocessing import cpu_count
 from functools import reduce
 
 from contracts import GameState
-
+from agents import RandomAgent
 
 class BattleRoyalGameWorldTerminal(GameState):
+
+    def __init__(self,game_number, numberofPlayer=6, lvl=0, ratio_gun_player=0.8, list_agent=[RandomAgent() for _ in range(6)]):
+        self.init_game_variable(game_number,numberofPlayer, lvl, ratio_gun_player, list_agent)
+        self.init_game_method()
+
+        # self.active_player = self.numberofPlayer
+        self.scores = np.zeros(self.numberofPlayer)
+        self.available_actions = list(range(48))
+        self.unique_id = ""
+        self.unique_id_vec = np.zeros(7 + (numberofPlayer - 1) * 3 + self.numberofGun * 3)
+
+    def __init__(self,gameNumber):
+
+
+        self.addPlayer()
+        self.addGun()
 
 
     def player_count(self) -> int:
@@ -56,27 +71,40 @@ class BattleRoyalGameWorldTerminal(GameState):
     def get_vectorized_state(self) -> np.ndarray:
         pass
 
-    def __init__(self,gameNumber):
-
+    def init_game_variable(self, game_number ,numberofplayer, lvl, ratio_gun_player, list_agent):
         self.state = True
-        self.players = []
-        self.guns = []
-        self.playersloose = []
-        self.numberofPlayer = 6
-        self.numberofGun = 8
-        self.playerwin = [i for i in range(self.numberofPlayer)]
+
         self.timeStart = time.time()
         self.earlystop = False
-        self.gameNumber = gameNumber
-        self.frame_skip = 20
-        self.count_frame = 20
-        self.frame_overall = 0
+        self.gameNumber = game_number
 
         self.state_world_save = []
-        self.addPlayer()
-        self.addGun()
 
-    def addPlayer(self):
+        self.players = []
+        self.guns = []
+
+        self.playersloose = []
+        self.ratio_gun_player = ratio_gun_player
+        self.numberofPlayer = numberofplayer
+        self.numberofGun = int(self.numberofPlayer * self.ratio_gun_player)
+        print("Number of player", self.numberofPlayer, "Number of gun", self.numberofGun)
+        self.playerwin = [i for i in range(self.numberofPlayer)]
+        self.time2 = 0
+        self.frame_skip = 5
+        self.count_frame = self.frame_skip
+        self.frame_overall = 0
+        self.level = lvl
+        self.action_space_movement = 8
+        self.action_space_direction = 2
+        self.action_space_shoot_yes_or_not = 2
+        self.list_agent = list_agent
+
+    def init_game_method(self):
+        self.add_player()
+        self.add_gun()
+
+
+    def add_player(self):
         r = 45
         for i in range(self.numberofPlayer):
             angleCos = cos((2*pi / self.numberofPlayer) * (i+1))
@@ -84,7 +112,7 @@ class BattleRoyalGameWorldTerminal(GameState):
             player = PlayerT(angleCos * r, angleSin * r, (i+1))
             self.players.append(player)
 
-    def addGun(self):
+    def add_gun(self):
         # r = 50
         type_gun = np.array([1,2,3])
         probabilities_apparition = np.array([0, 0.2, 0.8])
@@ -116,27 +144,63 @@ class BattleRoyalGameWorldTerminal(GameState):
 
     def play(self):
 
+        self.death_or_not()
+
+        self.win_or_not()
+        if not self.state:
+            return
+
+        self.agent_action()
+
+        self.gun_action()
+        if self.count_frame >= self.frame_skip:
+            self.count_frame = -1
+
+        self.count_frame += 1
+        self.frame_overall += 1
+
+    def win_or_not(self):
+        if len(self.playerwin) == 1:
+            winnernumber = int(self.playerwin[0])
+            # print("game world N°"+str(self.gameNumber)+" | "+"JOUEUR "+str(self.players[winnernumber].id) + " A GAGNE AVEC " + str(
+            # self.players[winnernumber].health) + " POINTS DE VIE" + " ET avec un ratio de "+str(
+            # round((self.players[winnernumber].ammohit/self.players[winnernumber].ammonumber),4)*100)+"%  | Nombre de Hit : "+str(self.players[winnernumber].ammohit)+" Nombre de Shoot : "+str(self.players[winnernumber].ammonumber)+" | Gun "+str( self.players[winnernumber].gun.name if self.players[winnernumber].has_a_gun else None))
+            self.state = False
+
+        if len(self.playerwin) == 0:
+            # print("game world N°" + str(self.gameNumber) + " | NO WINNER ")
+            self.state = False
+
+    def death_or_not(self):
         for (i, el) in enumerate(self.players):
             if i not in self.playersloose:
                 if el.get_health() <= 0:
-                    if self.players[i].has_a_gun : self.players[i].gun.get_release()
+                    if self.players[i].has_a_gun:
+                        self.players[i].gun.get_release()
                     self.players[i].erase_ammo()
                     self.playersloose.append(i)
                     self.playerwin.remove(i)
-                    #print("game world N°"+str(self.gameNumber)+" | "+"Player " + str(i) + " est mort")
+                    # print("game world N°"+str(self.gameNumber)+" | "+"Player " + str(i) + " est mort")
 
-        if len(self.playerwin) == 1:
-            winnernumber = int(self.playerwin[0])
-            #print("game world N°"+str(self.gameNumber)+" | "+"JOUEUR "+str(self.players[winnernumber].id) + " A GAGNE AVEC " + str(
-                #self.players[winnernumber].health) + " POINTS DE VIE" + " ET avec un ratio de "+str(
-                #round((self.players[winnernumber].ammohit/self.players[winnernumber].ammonumber),4)*100)+"%  | Nombre de Hit : "+str(self.players[winnernumber].ammohit)+" Nombre de Shoot : "+str(self.players[winnernumber].ammonumber)+" | Gun "+str( self.players[winnernumber].gun.name if self.players[winnernumber].has_a_gun else None))
-            self.state=False
-            return
-        if len(self.playerwin) == 0:
-            #print("game world N°" + str(self.gameNumber) + " | NO WINNER ")
-            self.state = False
-            return
+    def gun_action(self):
+        for (i, gun) in enumerate(self.guns):
+            for (j, player) in enumerate(self.players):
+                if j not in self.playersloose:
+                    if gun.id_player == -1:
+                        if not player.has_a_gun or time.time() - player.time_pick >= player.time_delay_pick:
+                            if (sqrt(pow(gun.X - player.X, 2) + pow(gun.Y - player.Y, 2))) <= (
+                                    gun.radius + player.radius):
+                                if player.has_a_gun:
+                                    self.players[j].gun.get_release()
+                                    # print("RELEASE {} {}     Release By   {} in World {} ".format(self.players[j].gun.name,self.players[j].gun.id_gun,player.id,self.gameNumber))
+                                self.players[j].gun = gun
+                                self.players[j].has_a_gun = True
+                                self.players[j].time_pick = time.time()
+                                self.guns[i].get_pickup(player.id, player.getX(), player.getY(), 5,
+                                                        player.shoot_decision)
+                                # print("PICK {}  {}    Pick By   {} in World {} ".format(gun.name, gun.id_gun, player.id,self.gameNumber))
 
+    def agent_action(self):
         for (i, el) in enumerate(self.players):
             if i not in self.playersloose:
                 if self.count_frame >= self.frame_skip:
@@ -154,29 +218,6 @@ class BattleRoyalGameWorldTerminal(GameState):
                 el.move()
                 el.attack(time=time.time())
                 el.ammoshoot(time=time.time())
-
-        if self.count_frame >= self.frame_skip:
-            self.count_frame = -1
-
-        self.count_frame += 1
-        self.frame_overall += 1
-
-        for (i, gun) in enumerate(self.guns):
-            for (j, player) in enumerate(self.players):
-                if j not in self.playersloose:
-                    if gun.id_player == -1:
-                        if not player.has_a_gun or time.time() - player.time_pick >=player.time_delay_pick :
-                            if (sqrt(pow(gun.X - player.X, 2) + pow(gun.Y - player.Y, 2))) <= (
-                                    gun.radius + player.radius):
-                                if player.has_a_gun:
-                                    self.players[j].gun.get_release()
-                                    #print("RELEASE {} {}     Release By   {} in World {} ".format(self.players[j].gun.name,self.players[j].gun.id_gun,player.id,self.gameNumber))
-                                self.players[j].gun = gun
-                                self.players[j].has_a_gun = True
-                                self.players[j].time_pick = time.time()
-                                self.guns[i].get_pickup(player.id, player.getX(), player.getY(), 5,
-                                                        player.shoot_decision)
-                                #print("PICK {}  {}    Pick By   {} in World {} ".format(gun.name, gun.id_gun, player.id,self.gameNumber))
 
     def run(self):
         # tic = time.time()
