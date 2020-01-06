@@ -1,4 +1,6 @@
 import random
+from abc import ABC
+
 import numpy as np
 from collections import Counter
 
@@ -16,6 +18,7 @@ from contracts import GameState
 
 
 class BattleRoyalGameWorldTerminal(GameState):
+
 
     def player_count(self) -> int:
         return len(self.playerwin)
@@ -43,6 +46,15 @@ class BattleRoyalGameWorldTerminal(GameState):
 
     def get_unique_id(self) -> str:
         return self.unique_id
+
+    def get_max_state_count(self) -> int:
+        pass
+
+    def get_action_space_size(self) -> int:
+        pass
+
+    def get_vectorized_state(self) -> np.ndarray:
+        pass
 
     def __init__(self,gameNumber):
 
