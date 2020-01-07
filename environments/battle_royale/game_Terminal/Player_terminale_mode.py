@@ -29,15 +29,22 @@ class PlayerT:
         self.id = id
         self.health = 50
         self.ammonumber = 0
-        self.ammohit = 0
+        self.ammo_hit = 0
+        self.ammo_miss = 0
+        self.kill = 0
+        self.player_hit_me = -1
+        self.discovery = []
 
     # r le radius
     # theta en degré ( 1 radian * 180/pi = 57,3 °) et ( 1° * pi/180 = 0.017 rad)
     def attack(self,time):
-        if time - self.shootTimeDelayNow >= (self.shootTimeDelay if not self.has_a_gun else self.gun.seconde_between_shoot) and self.shoot_decision>0.5:
+        #print(self.shootTimeDelayNow, (self.shootTimeDelay if not self.has_a_gun else self.gun.seconde_between_shoot) ,self.shoot_or_not_decision, self.shoot_or_not_decision>0.5)
+        if time - self.shootTimeDelayNow >= (self.shootTimeDelay if not self.has_a_gun else self.gun.seconde_between_shoot) and self.shoot_or_not_decision>0.5:
+            theta = self.shoot_decision
             dammage = random.randint(2,8) if not self.has_a_gun else random.randint(self.gun.min_damage, self.gun.max_damage)
             shootammo = AmmoT(self.X,self.Y,self.shoot_decision,time,self.ammonumber,self.id,dammage)
-
+            shootammo.r = 4
+            shootammo.theta = theta
             self.shoot.append(shootammo)
             self.shootTimeDelayNow = time
             self.ammonumber += 1
@@ -47,13 +54,15 @@ class PlayerT:
         for (i, el) in enumerate(copy_list):
             if el.hit:
                 self.shoot.pop(i)
-                self.ammohit += 1
+                self.ammo_hit += 1
             # elif time - el.time >= 0.001:
                 # self.shoot.pop(i)
             elif (sqrt(pow(el.x_origine - el.getX(),2)+pow(el.y_origine - el.getY(),2))) >= (self.gun.distance_of_shoot if self.has_a_gun else 3):
                 self.shoot.pop(i)
+                self.ammo_miss +=1
             elif self.shoot[i].getX() >= self.max_distance or self.shoot[i].getX() <= -self.max_distance or self.shoot[i].getY() <= -self.max_distance or self.shoot[i].getY() >= self.max_distance:
                 self.shoot.pop(i)
+                self.ammo_miss += 1
             else:
                 angleCos = cos(el.theta)
                 angleSin = sin(el.theta)
@@ -86,7 +95,6 @@ class PlayerT:
         self.Y = value
 
     def move(self):
-
         if self.getY() + self.Y_decision > self.max_distance:
             self.setY(self.max_distance)
         elif self.getY() + self.Y_decision < -self.max_distance:

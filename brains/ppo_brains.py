@@ -1,11 +1,11 @@
 import numpy as np
-import tensorflow.python.keras.backend as K
-from tensorflow.python.keras import Sequential
-from tensorflow.python.keras.activations import linear, tanh
-from tensorflow.python.keras.layers import Dense, Input, Lambda
-from tensorflow.python.keras.losses import mse
-from tensorflow.python.keras.models import Model
-from tensorflow.python.keras.optimizers import Adam
+import tensorflow.keras.backend as K
+from tensorflow.keras import Sequential
+from tensorflow.keras.activations import linear, tanh
+from tensorflow.keras.layers import Dense, Input, Lambda
+from tensorflow.keras.losses import mse
+from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import Adam
 
 
 def softmax_with_mask(tensor_and_mask):

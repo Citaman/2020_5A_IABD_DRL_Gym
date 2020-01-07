@@ -60,7 +60,10 @@ class GunT():
         theta = random.uniform(0,2*pi)
         r = 10
         self.setPos(self.getPos()+(cos(theta)*r,sin(theta)*r, 2))
-
+    def getX(self):
+        return self.X
+    def getY(self):
+        return self.Y
     def getPos(self):
         return (self.X,self.Y,self.Z)
 

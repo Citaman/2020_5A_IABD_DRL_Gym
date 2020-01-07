@@ -15,7 +15,7 @@ from environments.battle_royale.game import Player, Gun
 
 
 class BattleRoyale(GameState, ShowBase):
-    def __init__(self,numberofPlayer = 6,lvl =0,ratio_gun_player=0.8,list_agent=[RandomAgent() for _ in range(6)]):
+    def __init__(self,numberofPlayer = 6,lvl =0,ratio_gun_player=1.2,list_agent=[RandomAgent() for _ in range(6)]):
         ShowBase.__init__(self)
         self.init_game_variable(numberofPlayer,lvl,ratio_gun_player,list_agent)
         self.init_game_method()
@@ -81,46 +81,46 @@ class BattleRoyale(GameState, ShowBase):
         #print(self.unique_id)
 
     def set_unique_id_vec(self,id):
-
-        self.unique_id_vec[0]= self.players[id].getX()
-        self.unique_id_vec[1] = self.players[id].getY()
-        self.unique_id_vec[2] = self.players[id].health
-        self.unique_id_vec[3] = self.players[id].ammo_hit
-        self.unique_id_vec[4] = self.players[id].ammo_miss
+        self.unique_id_vec[0] = self.players[id].getX() / 100
+        self.unique_id_vec[1] = self.players[id].getY() / 100
+        self.unique_id_vec[2] = self.players[id].health / 50
+        self.unique_id_vec[3] = self.players[id].ammo_hit / (self.players[id].ammo_miss + 1)
+        self.unique_id_vec[4] = self.players[id].player_hit_me
         self.unique_id_vec[5] = self.players[id].kill
         self.unique_id_vec[6] = len(self.playerwin)
 
         number = 7
         for (i, el) in enumerate(self.players):
             if i is not id:
-                if i not in self.playersloose and (sqrt(pow(self.players[id].getX() - el.getX(),2)+pow(self.players[id].getY()- el.getY(),2))) <= 30 :
-                    #print('if',number,number+1,number+2)
-                    self.unique_id_vec[number] = el.getX()
-                    self.unique_id_vec[number+1] = el.getY()
-                    self.unique_id_vec[number + 2] = el.health
+                if i not in self.playersloose and (
+                        sqrt(pow(self.players[id].getX() - el.getX(), 2) + pow(self.players[id].getY() - el.getY(),
+                                                                               2))) <= 30:
+                    # print('if',number,number+1,number+2)
+                    self.unique_id_vec[number] = el.getX() / 100
+                    self.unique_id_vec[number + 1] = el.getY() / 100
+                    self.unique_id_vec[number + 2] = el.health / 50
                     number += 3
                 else:
-                    #print('else',number, number + 1, number + 2)
+                    # print('else',number, number + 1, number + 2)
                     self.unique_id_vec[number] = 0
                     self.unique_id_vec[number + 1] = 0
                     self.unique_id_vec[number + 2] = 0
                     number += 3
         for (i, el) in enumerate(self.guns):
-                if (sqrt(pow(self.players[id].getX() - el.getX(), 2) + pow(self.players[id].getY() - el.getY(), 2))) <= 30:
-                    #print('if', number, number + 1, number + 2)
-                    self.unique_id_vec[number] = el.getX()
-                    self.unique_id_vec[number + 1] = el.getY()
-                    self.unique_id_vec[number + 2] = el.type
-                    number += 3
-                else:
-                    #print('else', number, number + 1, number + 2)
-                    self.unique_id_vec[number] = 0
-                    self.unique_id_vec[number + 1] = 0
-                    self.unique_id_vec[number + 2] = 0
-                    number += 3
+            if (sqrt(pow(self.players[id].getX() - el.getX(), 2) + pow(self.players[id].getY() - el.getY(), 2))) <= 30:
+                # print('if', number, number + 1, number + 2)
+                self.unique_id_vec[number] = el.getX() / 100
+                self.unique_id_vec[number + 1] = el.getY() / 100
+                self.unique_id_vec[number + 2] = el.type
+                number += 3
+            else:
+                # print('else', number, number + 1, number + 2)
+                self.unique_id_vec[number] = 0
+                self.unique_id_vec[number + 1] = 0
+                self.unique_id_vec[number + 2] = 0
+                number += 3
 
-
-        print(self.unique_id_vec)
+        #print(self.unique_id_vec.round(2))
 
     def get_max_state_count(self) -> int:
         pass
@@ -153,6 +153,7 @@ class BattleRoyale(GameState, ShowBase):
         self.action_space_direction = 2
         self.action_space_shoot_yes_or_not = 2
         self.list_agent = list_agent
+        self.text = []
 
     def init_taskMgr(self):
         self.taskMgr.add(self.move_camera, "move the camera")
@@ -191,6 +192,17 @@ class BattleRoyale(GameState, ShowBase):
             angleSin = sin((2 * pi / (self.numberofPlayer)) * (i + 1))
             player = Player(angleCos * r, angleSin * r, 0, i)
             player.reparentTo(self.render)
+            text = TextNode('node name')
+            text.setText(str(i) + " " + "50PV")
+            text.setTextColor(1, 0, 0, 1)
+            self.text.append(text)
+            text3d = NodePath(self.text[i])
+            text3d.reparentTo(self.render)
+            text3d.setPos(player.getPos() + (-25, 0, 10))
+            text3d.setHpr(0, -30, 0)
+            text3d.setScale(5)
+            player.text = text3d
+            player.textstr = text
             playerColision = player.attach_new_node(CollisionNode('player/' + str(i) + "/0"))
             playerColision.node().addSolid(CollisionCapsule(ax=0, ay=0, az=4, bx=0, by=0, bz=0, radius=1.1))
             # player.node().removeSolid()
@@ -406,7 +418,7 @@ class BattleRoyale(GameState, ShowBase):
 
                     el.X_decision = cos(theta_move) * power_move / 2
                     el.Y_decision = sin(theta_move) * power_move / 2
-                    el.shoot_decision = thetashoot
+                    el.shoot_decision = theta_move
 
                     el.setHpr((-90 + el.shoot_decision * (180 / pi), 0, 0))
 
@@ -418,7 +430,8 @@ class BattleRoyale(GameState, ShowBase):
                 if position_str not in el.discovery:
                     el.discovery.append(position_str)
 
-                self.scores[i] =  el.kill*500 + el.ammo_hit*20 + len(el.discovery)*10   + (50 -el.health)*10  - el.ammo_miss*1
+                self.scores[i] =  el.kill*0.5+ el.ammo_hit * 0.02 + len(el.discovery) *0.01 + (el.health-50)*0.001 - el.ammo_miss * 0.001
+                el.score = self.scores[i]
                 #print(len(el.discovery))
                 #print("X :",int(el.getX()),",X~ :",int(el.getX()/10),"Y :",int(el.getY()),"Y~ :", int(el.getY()/10), "Number case =",(int(el.getX()/10)+10)*21+(int(el.getY()/10)+10))
 

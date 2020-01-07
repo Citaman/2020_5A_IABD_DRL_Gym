@@ -92,7 +92,7 @@ class BattleRoyalGameWorldTerminal():
             winnernumber = int(self.playerwin[0])
             #print("game world N°"+str(self.gameNumber)+" | "+"JOUEUR "+str(self.players[winnernumber].id) + " A GAGNE AVEC " + str(
                 #self.players[winnernumber].health) + " POINTS DE VIE" + " ET avec un ratio de "+str(
-                #round((self.players[winnernumber].ammohit/self.players[winnernumber].ammonumber),4)*100)+"%  | Nombre de Hit : "+str(self.players[winnernumber].ammohit)+" Nombre de Shoot : "+str(self.players[winnernumber].ammonumber)+" | Gun "+str( self.players[winnernumber].gun.name if self.players[winnernumber].has_a_gun else None))
+                #round((self.players[winnernumber].ammo_hit/self.players[winnernumber].ammonumber),4)*100)+"%  | Nombre de Hit : "+str(self.players[winnernumber].ammo_hit)+" Nombre de Shoot : "+str(self.players[winnernumber].ammonumber)+" | Gun "+str( self.players[winnernumber].gun.name if self.players[winnernumber].has_a_gun else None))
             self.state=False
             return
         if len(self.playerwin) == 0:

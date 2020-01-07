@@ -3,16 +3,16 @@ from tensorflow.python.keras.utils import *
 
 from brains import DQNBrain
 from contracts import Agent, GameState
-
+from collections import deque
 
 # si gs1 == gs2 => hash(gs1) == hash(gs2)
 # si gs1 != gs2 => hash(gs1) != hash(gs2) || hash(gs1) == hash(gs2)
 
 
-class DeepQLearningAgent(Agent):
+class DeepQLearningExperienceReplayAgent(Agent):
     def __init__(self,
                  action_space_size: int,
-                 alpha: float = 0.05,
+                 alpha: float = 0.01,
                  gamma: float = 0.999,
                  epsilon: float = 0.1,
                  ):
@@ -23,6 +23,7 @@ class DeepQLearningAgent(Agent):
         self.s = None
         self.a = None
         self.r = None
+        self.experience = deque(maxlen=20)
         self.gamma = gamma
         self.epsilon = epsilon
 
@@ -32,7 +33,7 @@ class DeepQLearningAgent(Agent):
 
         state_vec = gs.get_vectorized_state()
         predicted_Q_values = self.Q.predict(state_vec)
-        #print(predicted_Q_values.round(1))
+
         if np.random.random() <= self.epsilon:
             chosen_action = np.random.choice(available_actions)
         else:
@@ -40,9 +41,15 @@ class DeepQLearningAgent(Agent):
 
         if self.s is not None:
             target = self.r + self.gamma * max(predicted_Q_values[available_actions])
-            #print('target',target,"state",self.s)
             self.Q.train(self.s, self.a, target)
+            self.experience.append((self.s.copy(),self.a.copy(),self.r,state_vec.copy()))
+        print("experience",len(self.experience))
 
+        if len(self.experience) % 10 == 0:
+            for el in self.experience :
+                #print(np.argmax(el[1]),el[0][0:2],el[3][0:2])
+                target = el[2] + self.gamma * el[1]
+                self.Q.train(el[0], el[1], target)
         self.s = state_vec
         self.a = to_categorical(chosen_action, self.action_space_size)
         self.r = 0.0

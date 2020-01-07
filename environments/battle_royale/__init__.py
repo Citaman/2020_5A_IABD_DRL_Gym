@@ -1,1 +1,2 @@
 from .battle_royale import BattleRoyale
+from .battle_royale_commande_line import BattleRoyalGameWorldTerminal

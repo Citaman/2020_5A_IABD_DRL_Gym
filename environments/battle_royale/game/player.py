@@ -17,6 +17,8 @@ class Player(Actor):
         self.shoot_decision = 0
         self.shoot_or_not_decision = 0
         self.setScale(2)
+        self.text = None
+        self.textstr = None
         self.max_distance = 100
         #print(self.getTightBounds())
         self.shoot=[]
@@ -39,6 +41,8 @@ class Player(Actor):
         self.ammo_hit = 0
         self.ammo_miss = 0
         self.kill = 0
+
+        self.score = 0
 
         self.discovery = []
 
@@ -102,23 +106,27 @@ class Player(Actor):
                 #print(self.shoot[i].getPos())
 
     def move(self):
-
+        self.textstr.set_text(
+            str(self.id) + " " + str(self.health) + "PV" + " " + str(round(self.score,3)) + " points")
         if self.getY() + self.Y_decision > self.max_distance:
             self.setY(self.max_distance)
+            self.text.setY(self.max_distance)
         elif self.getY() + self.Y_decision < -self.max_distance:
             self.setY(-self.max_distance)
+            self.text.setY(-self.max_distance)
         else:
             self.setY(self.getY() + self.Y_decision)
+            self.text.setY(self.text.getY() + self.Y_decision)
 
         if self.getX() + self.X_decision > self.max_distance:
             self.setX(self.max_distance)
+            self.text.setX(self.max_distance-25)
         elif self.getX() + self.X_decision < -self.max_distance:
             self.setX(-self.max_distance)
+            self.text.setX(-self.max_distance-25)
         else:
             self.setX(self.getX() + self.X_decision)
-
-        if self.has_a_gun:
-            self.gun.move(self.getPos(),self.shoot_decision)
+            self.text.setX(self.text.getX() + self.X_decision)
 
     def get_health(self):
         return self.health
