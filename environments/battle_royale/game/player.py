@@ -19,7 +19,7 @@ class Player(Actor):
         self.setScale(2)
         self.text = None
         self.textstr = None
-        self.max_distance = 100
+        self.max_distance = 50
         #print(self.getTightBounds())
         self.shoot=[]
         self.shootTimeDelay = 0.5
@@ -36,7 +36,8 @@ class Player(Actor):
         self.player_hit_me = -1
         self.shootTimeDelayNow = 0
         self.id = id
-        self.health = 50
+        # self.health = 50
+        self.health = 25
         self.ammonumber = 0
         self.ammo_hit = 0
         self.ammo_miss = 0

@@ -13,11 +13,15 @@ class PlayerT:
         self.Y_decision = 0
         self.shoot_decision = 0
         self.shoot_or_not_decision = 0
+        # self.max_distance = 30
+
         self.max_distance = 50
         self.reward = 0
 
         self.shootTimeDelay = 0.0005
         self.shootTimeDelayNow = 0
+        self.frame_per_shoot_delay = 15
+        self.frame_per_shoot_delay_now = 0
 
         self.time_delay_pick = 0.01
         self.time_pick = 0
@@ -27,7 +31,8 @@ class PlayerT:
 
         self.timeshootsave = time2.time()
         self.id = id
-        self.health = 50
+        # self.health = 50
+        self.health = 25
         self.ammonumber = 0
         self.ammo_hit = 0
         self.ammo_miss = 0
@@ -37,16 +42,18 @@ class PlayerT:
 
     # r le radius
     # theta en degré ( 1 radian * 180/pi = 57,3 °) et ( 1° * pi/180 = 0.017 rad)
-    def attack(self,time):
+    def attack(self,frame):
         #print(self.shootTimeDelayNow, (self.shootTimeDelay if not self.has_a_gun else self.gun.seconde_between_shoot) ,self.shoot_or_not_decision, self.shoot_or_not_decision>0.5)
-        if time - self.shootTimeDelayNow >= (self.shootTimeDelay if not self.has_a_gun else self.gun.seconde_between_shoot) and self.shoot_or_not_decision>0.5:
+        #print(self.id,frame - self.frame_per_shoot_delay_now , self.frame_per_shoot_delay_now)
+        if frame - self.frame_per_shoot_delay_now >= (self.frame_per_shoot_delay if not self.has_a_gun else self.gun.seconde_between_shoot) and self.shoot_or_not_decision>0.5:
             theta = self.shoot_decision
             dammage = random.randint(2,8) if not self.has_a_gun else random.randint(self.gun.min_damage, self.gun.max_damage)
-            shootammo = AmmoT(self.X,self.Y,self.shoot_decision,time,self.ammonumber,self.id,dammage)
+            shootammo = AmmoT(self.X,self.Y,self.shoot_decision,frame,self.ammonumber,self.id,dammage)
             shootammo.r = 4
             shootammo.theta = theta
             self.shoot.append(shootammo)
-            self.shootTimeDelayNow = time
+            #self.shootTimeDelayNow = time
+            self.frame_per_shoot_delay_now = frame
             self.ammonumber += 1
 
     def ammoshoot(self,time):

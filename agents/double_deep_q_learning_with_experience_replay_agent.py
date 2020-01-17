@@ -1,12 +1,12 @@
-from tensorflow.python.keras.metrics import *
-from tensorflow.python.keras.utils import *
+from tensorflow.keras.metrics import *
+from tensorflow.keras.utils import *
 
 from brains import DQNBrain
 from contracts import Agent, GameState
 
 from collections import deque
-
-
+from random import sample
+import numpy as np
 # si gs1 == gs2 => hash(gs1) == hash(gs2)
 # si gs1 != gs2 => hash(gs1) != hash(gs2) || hash(gs1) == hash(gs2)
 
@@ -29,7 +29,7 @@ class DoubleDeepQLearningExprerienceReplayAgent(Agent):
         self.a = None
         self.r = None
         self.count_state = 1
-        self.experience = deque(maxlen=100)
+        self.experience = deque(maxlen=10000)
         self.gamma = gamma
         self.epsilon = epsilon
 
@@ -52,7 +52,8 @@ class DoubleDeepQLearningExprerienceReplayAgent(Agent):
             self.experience.append((self.s.copy(), self.a.copy(), self.r, state_vec.copy()))
 
         if len(self.experience) % 10 == 0 and self.epsilon > 0 :
-            for el in self.experience :
+            #print(A[:,2])
+            for el in sample(self.experience,len(self.experience) if len(self.experience)<20 else  20) :
                 #print(np.argmax(el[1]),el[0][0:2],el[3][0:2])
                 target = el[2] + self.gamma * el[1]
                 self.Q_action.train(el[0], el[1], target)
@@ -75,7 +76,7 @@ class DoubleDeepQLearningExprerienceReplayAgent(Agent):
 
         if t:
             target = self.r
-            self.Q.train(self.s, self.a, target)
+            self.Q_action.train(self.s, self.a, target)
             self.s = None
             self.a = None
             self.r = None

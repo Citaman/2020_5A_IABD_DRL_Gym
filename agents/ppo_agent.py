@@ -1,8 +1,10 @@
-from tensorflow.python.keras.metrics import *
-from tensorflow.python.keras.utils import *
+from tensorflow.keras.metrics import *
+from tensorflow.keras.utils import *
 
 from brains import PPOValueBrain, PPOPolicyBrain
 from contracts import Agent, GameState
+
+import numpy as np
 
 
 class PPOAgent(Agent):
@@ -108,10 +110,8 @@ class PPOAgent(Agent):
             self.is_last_episode_terminal = True
 
     def compute_gains_and_advantages(self):
-        #print("compute_gains_and_advantages")
         last_gain = 0.0
         for i in reversed(range(len(self.s))):
-            print("compute_gains_and_advantages","loop")
             last_gain = self.r[i] + self.gamma * last_gain
             self.buffer['states'].append(self.s[i])
             self.buffer['chosen_actions'].append(self.a[i])

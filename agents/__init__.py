@@ -5,6 +5,7 @@ from .deep_q_learning_agent import DeepQLearningAgent
 from .deep_q_learning_experience_replay_agent import DeepQLearningExperienceReplayAgent
 from .double_deep_q_learning_agent import DoubleDeepQLearningAgent
 from .double_deep_q_learning_with_experience_replay_agent import DoubleDeepQLearningExprerienceReplayAgent
+from .reinforce_agent import ReinforceAgent
 from .tabular_like_deep_q_learning_agent import TabularLikeDeepQLearningAgent
 from .random_rollout_agent import RandomRolloutAgent
 from .ppo_agent import PPOAgent

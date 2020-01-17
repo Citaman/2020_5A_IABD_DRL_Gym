@@ -17,7 +17,7 @@ class DeepQLearningAgent(Agent):
                  epsilon: float = 0.1,
                  ):
         self.Q = DQNBrain(output_dim=action_space_size, learning_rate=alpha,
-                          hidden_layers_count=2,
+                          hidden_layers_count=5,
                           neurons_per_hidden_layer=128)
         self.action_space_size = action_space_size
         self.s = None

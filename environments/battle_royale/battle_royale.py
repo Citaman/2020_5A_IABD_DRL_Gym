@@ -25,6 +25,8 @@ class BattleRoyale(GameState, ShowBase):
         self.scores = np.zeros(self.numberofPlayer)
         self.available_actions = list(range(48))
         self.unique_id = ""
+        self.numberofGun = 0
+        self.guns = []
         self.unique_id_vec = np.zeros(7+(numberofPlayer-1)*3+self.numberofGun*3)
 
 
@@ -146,7 +148,7 @@ class BattleRoyale(GameState, ShowBase):
         print("Number of player",self.numberofPlayer,"Number of gun",self.numberofGun)
         self.playerwin = [i for i in range(self.numberofPlayer)]
         self.time2 = 0
-        self.frame_skip = 5
+        self.frame_skip = 4
         self.count_frame = self.frame_skip
         self.level = lvl
         self.action_space_movement = 8
@@ -166,7 +168,7 @@ class BattleRoyale(GameState, ShowBase):
         self.add_light()
         self.background_image("clear-blue-sky.jpeg")
         self.add_player()
-        self.add_gun()
+        #self.add_gun()
         self.disableMouse()
         self.camera_set()
 
@@ -186,7 +188,8 @@ class BattleRoyale(GameState, ShowBase):
         self.keyMap[key] = value
 
     def add_player(self):
-        r = 80
+        #r = 80
+        r = 50
         for i in range(self.numberofPlayer):
             angleCos = cos((2 * pi / (self.numberofPlayer)) * (i + 1))
             angleSin = sin((2 * pi / (self.numberofPlayer)) * (i + 1))
@@ -221,7 +224,8 @@ class BattleRoyale(GameState, ShowBase):
         for (i, el) in enumerate(distribution_gun):
             angleCos = cos((2 * pi / (self.numberofGun)) * (i + 1) + random.uniform(-0.5, 0.5))
             angleSin = sin((2 * pi / (self.numberofGun)) * (i + 1) + random.uniform(-0.5, 0.5))
-            r = random.uniform(45, 65)
+            #r = random.uniform(45, 65)
+            r = random.uniform(20,35)
             gun = Gun(angleCos * r, angleSin * r, 2, i, el)
             gun.reparentTo(self.render)
             self.guns.append(gun)
@@ -430,7 +434,7 @@ class BattleRoyale(GameState, ShowBase):
                 if position_str not in el.discovery:
                     el.discovery.append(position_str)
 
-                self.scores[i] =  el.kill*0.5+ el.ammo_hit * 0.02 + len(el.discovery) *0.01 + (el.health-50)*0.001 - el.ammo_miss * 0.001
+                self.scores[i] =  el.kill*1.5+ el.ammo_hit * 0.02 #+ len(el.discovery) *0.01 + (el.health-50)*0.001 - el.ammo_miss * 0.001
                 el.score = self.scores[i]
                 #print(len(el.discovery))
                 #print("X :",int(el.getX()),",X~ :",int(el.getX()/10),"Y :",int(el.getY()),"Y~ :", int(el.getY()/10), "Number case =",(int(el.getX()/10)+10)*21+(int(el.getY()/10)+10))
@@ -447,8 +451,8 @@ class BattleRoyale(GameState, ShowBase):
 
 
 if __name__ == '__main__':
-    #Game = BattleRoyale()
-    #Game.run()
+    Game = BattleRoyale()
+    Game.run()
     for i in range(-100,100):
         for j in range(-100,100):
             position = (int(i / 10) + 10) * 21 + (int(j / 10) + 10)

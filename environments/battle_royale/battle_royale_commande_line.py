@@ -27,8 +27,13 @@ class BattleRoyalGameWorldTerminal(GameState):
         # self.active_player = self.numberofPlayer
         self.scores = np.zeros(self.numberofPlayer)
         self.available_actions = list(range(48))
+        self.numberofGun = 0
+        self.guns = []
         self.unique_id = ""
         self.unique_id_vec = np.zeros(7 + (numberofPlayer - 1) * 3 + self.numberofGun * 3)
+        #self.unique_id_vec = np.zeros(7 + (numberofPlayer - 1) * 3)
+        print('vec len',len(self.unique_id_vec))
+
 
     ''' 
     def __init__(self,gameNumber):
@@ -137,12 +142,12 @@ class BattleRoyalGameWorldTerminal(GameState):
                 self.unique_id_vec[number + 2] = 0
                 number += 3
 
-        #print(self.unique_id_vec.round(2))
+        #print(len(self.unique_id_vec.round(2)))
 
     def init_game_variable(self, game_number ,numberofplayer, lvl, ratio_gun_player, list_agent):
         self.state = True
 
-        self.timeStart = time.time()
+        #self.timeStart = time.time()
         self.earlystop = False
         self.gameNumber = game_number
 
@@ -157,7 +162,7 @@ class BattleRoyalGameWorldTerminal(GameState):
         self.numberofGun = int(self.numberofPlayer * self.ratio_gun_player)
         self.playerwin = [i for i in range(self.numberofPlayer)]
         self.time2 = 0
-        self.frame_skip = 5
+        self.frame_skip = 4
         self.count_frame = self.frame_skip
         self.frame_overall = 0
         self.level = lvl
@@ -169,14 +174,16 @@ class BattleRoyalGameWorldTerminal(GameState):
 
     def init_game_method(self):
         self.add_player()
-        self.add_gun()
+        #self.add_gun()
 
     def add_player(self):
+        #r = 80
         r = 45
+        #r=15
         for i in range(self.numberofPlayer):
             angleCos = cos((2*pi / self.numberofPlayer) * (i+1))
             angleSin = sin((2*pi / self.numberofPlayer) * (i+1))
-            player = PlayerT(angleCos * r, angleSin * r, (i+1))
+            player = PlayerT(angleCos * r, angleSin * r,i)
             self.players.append(player)
 
     def add_gun(self):
@@ -187,7 +194,9 @@ class BattleRoyalGameWorldTerminal(GameState):
         for (i, el) in enumerate(distribution_gun):
             angleCos = cos((2 * pi / self.numberofGun) * (i + 1)+random.uniform(-0.5, 0.5))
             angleSin = sin((2 * pi / self.numberofGun) * (i + 1)+random.uniform(-0.5, 0.5))
+
             r = random.uniform(20,35)
+            #r =random.uniform(0,5)
             gun = GunT(angleCos * r, angleSin * r, 2, i, el)
             # gun.reparentTo(self.render)
             self.guns.append(gun)
@@ -205,6 +214,7 @@ class BattleRoyalGameWorldTerminal(GameState):
                             if (sqrt(pow(ammoplayer.X - player.X,2)+pow(ammoplayer.Y - player.Y,2))) <= (ammoplayer.radius + player.radius) and not ammoplayer.hit:
                                 ammoplayer.hit = True
                                 player.health -= ammoplayer.dammage
+                                player.player_hit_me = ammoplayer.id
                                 print("game world N°{} | HIT du Joueur {} sur le Jouer {} avec son tire N°{} en faisant {}".format(self.gameNumber,ammoplayer.id,player.id,ammoplayer.number,ammoplayer.dammage))
                             #print(player.id,player.health)
         #random.shuffle(self.guns)
@@ -219,11 +229,11 @@ class BattleRoyalGameWorldTerminal(GameState):
 
         self.agent_action()
 
-        self.gun_action()
+       # self.gun_action()
         if self.count_frame >= self.frame_skip:
             self.count_frame = -1
-            print(self.scores)
-            print(self.frame_overall)
+            #print(self.scores)
+            #print(self.frame_overall)
 
         self.count_frame += 1
         self.frame_overall += 1
@@ -231,6 +241,7 @@ class BattleRoyalGameWorldTerminal(GameState):
     def win_or_not(self):
         if len(self.playerwin) == 1:
             winnernumber = int(self.playerwin[0])
+            self.scores[self.playerwin[0]]+=20
             print("game world N°"+str(self.gameNumber)+" | "+"JOUEUR "+str(self.players[winnernumber].id) + " A GAGNE AVEC " + str(
              self.players[winnernumber].health) + " POINTS DE VIE" + " ET avec un ratio de "+str(
              round((self.players[winnernumber].ammo_hit/self.players[winnernumber].ammonumber),4)*100)+"%  | Nombre de Hit : "+str(self.players[winnernumber].ammo_hit)+" Nombre de Shoot : "+str(self.players[winnernumber].ammonumber)+" | Gun "+str( self.players[winnernumber].gun.name if self.players[winnernumber].has_a_gun else None))
@@ -244,11 +255,14 @@ class BattleRoyalGameWorldTerminal(GameState):
         for (i, el) in enumerate(self.players):
             if i not in self.playersloose:
                 if el.get_health() <= 0:
+                    self.players[el.player_hit_me].kill += 1
+                    self.scores[i] += -20
                     if self.players[i].has_a_gun:
                         self.players[i].gun.get_release()
                     self.players[i].erase_ammo()
                     self.playersloose.append(i)
                     self.playerwin.remove(i)
+
                     print("game world N°"+str(self.gameNumber)+" | "+"Player " + str(i) + " est mort")
 
     def gun_action(self):
@@ -261,13 +275,13 @@ class BattleRoyalGameWorldTerminal(GameState):
                                     gun.radius + player.radius):
                                 if player.has_a_gun:
                                     self.players[j].gun.get_release()
-                                    print("RELEASE {} {}     Release By   {} in World {} ".format(self.players[j].gun.name,self.players[j].gun.id_gun,player.id,self.gameNumber))
+                                    # print("RELEASE {} {}     Release By   {} in World {} ".format(self.players[j].gun.name,self.players[j].gun.id_gun,player.id,self.gameNumber))
                                 self.players[j].gun = gun
                                 self.players[j].has_a_gun = True
                                 self.players[j].time_pick = time.time()
                                 self.guns[i].get_pickup(player.id, player.getX(), player.getY(), 5,
                                                         player.shoot_decision)
-                                print("PICK {}  {}    Pick By   {} in World {} ".format(gun.name, gun.id_gun, player.id,self.gameNumber))
+                                # print("PICK {}  {}    Pick By   {} in World {} ".format(gun.name, gun.id_gun, player.id,self.gameNumber))
 
     def agent_action(self):
         old_scores = self.scores.copy()
@@ -306,13 +320,13 @@ class BattleRoyalGameWorldTerminal(GameState):
                     el.Y_decision = sin(theta_move) * power_move / 2
 
                 el.move()
-                el.attack(time=time.time())
+                el.attack(frame=self.frame_overall)
                 el.ammoshoot(time=time.time())
                 position = (int(el.getX() / 10) + 10) * 21 + (int(el.getY() / 10) + 10)
                 position_str = '0' * (3 - len(str(position))) + str(position)
                 if position_str not in el.discovery:
                     el.discovery.append(position_str)
-                self.scores[i] = el.kill*0.5+ el.ammo_hit * 0.2 + len(el.discovery) *0.1 + (el.health-50)*0.1 - el.ammo_miss * 0.1
+                self.scores[i] = el.kill*1.5+ el.ammo_hit * 0.2 - el.ammo_miss * 0.1 + (el.health-50)*0.1  #+el.kill*0.5+ el.ammo_hit * 0.2 + len(el.discovery) *0.1 + (el.health-50)*0.1 - el.ammo_miss * 0.1
 
 
             new_scores = self.scores
@@ -323,13 +337,13 @@ class BattleRoyalGameWorldTerminal(GameState):
                 agent.observe(rewards[i], self.is_game_over(), i)
 
 
-        if self.count_frame >= self.frame_skip:
-            print(action_per_agent)
+        #if self.count_frame >= self.frame_skip:
+        #    print(action_per_agent)
 
     def run(self):
-        # tic = time.time()
+        tic = time.time()
         # maxTime = 0.8
-        max_frame = 550#5500
+        max_frame = 550*4#550000
         while(self.state):
             self.play()
             self.colision()
@@ -341,8 +355,8 @@ class BattleRoyalGameWorldTerminal(GameState):
             for i, agent in enumerate(self.list_agent):
                 agent.observe(self.reward[i],True,i)
             #print("dnfodfojqdkslm,fndvbjfklpionqdklsoifqmjkd ln,opIJFGODKL,sijfomgjk")
-            # toc = time.time()
-            # print("game world N°"+str(self.gameNumber)+" | "+"GAME FINISH IN : "+str(round(toc-tic,4))+" secondes")
+            toc = time.time()
+            print("game world N°"+str(self.gameNumber)+" | "+"GAME FINISH IN : "+str(round(toc-tic,4))+" secondes ",self.frame_overall,"frame","and scores ",self.scores)
             # return float(toc-tic)
             # return 1
             return self.frame_overall,len(self.playerwin)
@@ -350,7 +364,21 @@ class BattleRoyalGameWorldTerminal(GameState):
             for i, agent in enumerate(self.list_agent):
                 agent.observe(self.reward[i], True, i)
             #print("dnfodfojqdkslm,fndvbjfklpionqdklsoifqmjkd ln,opIJFGODKL,sijfomgjk")
-            # print("game world N°" + str(self.gameNumber) + " | " + "Early Stoping | Stile : "+str(self.playerwin))
+            winnernumber = None
+            if self.scores.sum() != 0 :
+                winnernumber = int(self.playerwin[np.argmax(self.scores[self.playerwin])])
+                self.scores[winnernumber] += 20
+                print("game world N°" + str(self.gameNumber) + " | " + "JOUEUR " + str(
+                    self.players[winnernumber].id) + " A GAGNE AVEC " + str(
+                    self.players[winnernumber].health) + " POINTS DE VIE" + " ET avec un ratio de " + str(
+                    round((self.players[winnernumber].ammo_hit / self.players[winnernumber].ammonumber),
+                          4) * 100) + "%  | Nombre de Hit : " + str(
+                    self.players[winnernumber].ammo_hit) + " Nombre de Shoot : " + str(
+                    self.players[winnernumber].ammonumber) + " | Gun " + str(
+                    self.players[winnernumber].gun.name if self.players[winnernumber].has_a_gun else None))
+            #self.state = False
+            toc = time.time()
+            print("game world N°" + str(self.gameNumber) + " | " + "Early Stoping | Stile : "+str(self.playerwin)+" |GAME FINISH IN : "+str(round(toc-tic,4)),"and scorces ",self.scores,self.scores[self.playerwin],winnernumber)
             # for player in self.players :print(player)
             # return float(maxTime)
             # return len(self.playerwin)

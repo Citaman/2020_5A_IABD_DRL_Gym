@@ -49,8 +49,7 @@ class PPOPolicyBrain:
         hidden_tensor = Dense(output_dim, activation=linear)(hidden_tensor)
         policy_tensor = Lambda(lambda t: softmax_with_mask(t))((hidden_tensor, mask_tensor))
 
-        self.model = Model([state_tensor, mask_tensor, advantages_tensor, old_policy_tensor],
-                           [policy_tensor])
+        self.model = Model([state_tensor, mask_tensor, advantages_tensor, old_policy_tensor], [policy_tensor])
 
         print(self.model.summary())
 
@@ -113,7 +112,7 @@ class PPOValueBrain:
 if __name__ == "__main__":
     import tensorflow as tf
 
-    tf.enable_eager_execution()
+    #tf.enable_eager_execution()
 
     x = np.zeros((4, 3))
     x[3, 0] = -999999999999999999999
