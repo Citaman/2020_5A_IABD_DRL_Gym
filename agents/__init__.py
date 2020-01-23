@@ -7,6 +7,7 @@ from .double_deep_q_learning_agent import DoubleDeepQLearningAgent
 from .double_deep_q_learning_with_experience_replay_agent import DoubleDeepQLearningExprerienceReplayAgent
 from .reinforce_agent import ReinforceAgent
 from .reinforce_with_mean_base_line_agent import ReinforceMeanBaseLineAgent
+from .reinforce_with_learned_base_line_critic_agent import ReinforceLearnedBaseLineCriticAgent
 from .tabular_like_deep_q_learning_agent import TabularLikeDeepQLearningAgent
 from .random_rollout_agent import RandomRolloutAgent
 from .ppo_agent import PPOAgent

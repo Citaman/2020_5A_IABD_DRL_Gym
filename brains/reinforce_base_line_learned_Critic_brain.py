@@ -20,7 +20,7 @@ def build_ppo_loss(action_prob, reward):
 class ReinforceBaseLineCriticBrain:
     def __init__(self,
                  output_dim: int,
-                 learning_rate: float = 0.0001,
+                 learning_rate: float = 0.001,
                  hidden_layers_count: int = 0,
                  neurons_per_hidden_layer: int = 0):
         self.model = Sequential()
@@ -28,14 +28,14 @@ class ReinforceBaseLineCriticBrain:
         for i in range(hidden_layers_count):
             self.model.add(Dense(neurons_per_hidden_layer, activation=tanh))
 
-        self.model.add(Dense(output_dim, activation=softmax, use_bias=False))
+        self.model.add(Dense(output_dim, activation=linear, use_bias=False))
         self.model.compile(loss=mse, optimizer=Adam(lr=learning_rate))
-        log_dir = "../../logs/Reinforce/MODELE-MLP__" + datetime.now().strftime("%Y%m%d-%H%M%S")
-        self.tensorboard_callback = TensorBoard(log_dir=log_dir,histogram_freq=0,batch_size=440, write_graph=True,write_grads=True)
-        self.tensorboard_callback.set_model(self.model)
-        self.batch_id = 0
-        self.writer = tf.summary.create_file_writer(log_dir)
-        #self.model.summary()
+        # log_dir = "../../logs/Reinforce/MODELE-MLP__" + datetime.now().strftime("%Y%m%d-%H%M%S")
+        # self.tensorboard_callback = TensorBoard(log_dir=log_dir,histogram_freq=0,batch_size=440, write_graph=True,write_grads=True)
+        # self.tensorboard_callback.set_model(self.model)
+        # self.batch_id = 0
+        # self.writer = tf.summary.create_file_writer(log_dir)
+        # self.model.summary()
 
     def predict(self, state: np.ndarray) -> np.ndarray:
         return self.model.predict(np.array((state,)))[0]
@@ -51,12 +51,12 @@ class ReinforceBaseLineCriticBrain:
         with self.writer.as_default():
             tf.summary.scalar("loss", logs, step=step)
 
-    def train(self, state: list, chosen_action_mask: np.ndarray, target: list):
-        target_vec = np.array(chosen_action_mask) * np.array(target) + (1 - np.array(chosen_action_mask)) * self.model.predict(np.array(state))
-        #print(target_vec[-1],chosen_action_mask[-1])
-        logs = self.model.train_on_batch(np.array(state),np.array(target_vec))
-        print(logs)
-        self.write_tensorboard_file(self.batch_id,logs)
-        #self.tensorboard_callback.on_epoch_end(self.batch_id, self.named_logs([logs]))
-        self.batch_id +=1
-        self.writer.flush()
+    def train(self, state: list, target: list):
+        # target_vec = np.array(chosen_action_mask) * np.array(target) + (1 - np.array(chosen_action_mask)) * self.model.predict(np.array(state))
+        # print(target_vec[-1],chosen_action_mask[-1])
+        logs = self.model.train_on_batch(np.array(state),np.array(target))
+        # print(logs)
+        # self.write_tensorboard_file(self.batch_id,logs)
+        # self.tensorboard_callback.on_epoch_end(self.batch_id, self.named_logs([logs]))
+        # self.batch_id +=1
+        # self.writer.flush()
