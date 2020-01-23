@@ -1,21 +1,9 @@
 from collections import Counter
 from random import random
-
-from tensorflow.keras.metrics import *
 from tensorflow.keras.utils import *
 from brains import DQNBrain, ReinforceBrain
 from contracts import Agent, GameState
-
-import tensorflow.keras.backend as K
-
 import numpy as np
-
-import tensorflow as tf
-
-
-
-# si gs1 == gs2 => hash(gs1) == hash(gs2)
-# si gs1 != gs2 => hash(gs1) != hash(gs2) || hash(gs1) == hash(gs2)
 
 
 class ReinforceAgent(Agent):
@@ -26,7 +14,7 @@ class ReinforceAgent(Agent):
                  epsilon: float = 0.1,
                  ):
         self.Q_policy_function = ReinforceBrain(output_dim=action_space_size, learning_rate=alpha,
-                          hidden_layers_count=3,
+                          hidden_layers_count=5,
                           neurons_per_hidden_layer=128)
         self.action_space_size = action_space_size
         self.alpha = alpha

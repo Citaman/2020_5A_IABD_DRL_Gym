@@ -11,24 +11,18 @@ import numpy as np
 
 import tensorflow as tf
 
-
-
-# si gs1 == gs2 => hash(gs1) == hash(gs2)
-# si gs1 != gs2 => hash(gs1) != hash(gs2) || hash(gs1) == hash(gs2)
-
-
 class ReinforceLearnedBaseLineCriticAgent(Agent):
     def __init__(self,
                  action_space_size: int,
-                 alpha: float = 0.005,
+                 alpha: float = 0.001,
                  gamma: float = 0.999,
                  epsilon: float = 0.1,
                  ):
         self.Q_policy_function = ReinforceBrain(output_dim=action_space_size, learning_rate=alpha,
-                          hidden_layers_count=2,
+                          hidden_layers_count=5,
                           neurons_per_hidden_layer=128)
         self.Q_critic = ReinforceBaseLineCriticBrain(output_dim=1, learning_rate=alpha,
-                          hidden_layers_count=2,
+                          hidden_layers_count=5,
                           neurons_per_hidden_layer=128)
         self.action_space_size = action_space_size
         self.alpha = alpha

@@ -12,12 +12,11 @@ if __name__ == "__main__":
         run_for_n_games_and_print_stats([agent], gs, 500)
         while not gs.is_game_over():
             run_step([agent], gs)
-            print(gs)
             try:
                 print(agent.probs[-1])
-                print(agent.value_baseline[-1])
             except:
-                print('FINI')
+                pass
+            print(gs)
         gs.__init__()
 
     run_for_n_games_and_print_stats([agent], gs, 100)

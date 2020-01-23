@@ -10,11 +10,11 @@ if __name__ == "__main__":
     for i in range(500):
         print(i)
         run_for_n_games_and_print_stats([agent], gs, 100)
-        while not gs.is_game_over():
+        '''while not gs.is_game_over():
             run_step([agent], gs)
             print(gs)
         print('------------')
-        gs.__init__()
+        gs.__init__()'''
 
 
     gs = gs.clone()

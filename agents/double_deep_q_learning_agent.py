@@ -17,10 +17,10 @@ class DoubleDeepQLearningAgent(Agent):
                  epsilon: float = 0.1,
                  ):
         self.Q_action = DQNBrain(output_dim=action_space_size, learning_rate=alpha,
-                          hidden_layers_count=2,
+                          hidden_layers_count=5,
                           neurons_per_hidden_layer=128)
-        self.Q_evaluation = DQNBrain(output_dim=1, learning_rate=alpha,
-                          hidden_layers_count=2,
+        self.Q_evaluation = DQNBrain(output_dim=action_space_size, learning_rate=alpha,
+                          hidden_layers_count=5,
                           neurons_per_hidden_layer=128)
         self.action_space_size = action_space_size
         self.s = None
@@ -43,8 +43,8 @@ class DoubleDeepQLearningAgent(Agent):
             chosen_action = available_actions[int(np.argmax(predicted_Q_values[available_actions]))]
 
         if self.s is not None:
-            target = self.r + self.gamma * self.Q_evaluation.predict(state_vec)
-            print('target',target,"state",self.s)
+            target = self.r + self.gamma * predicted_Q_values[int(np.argmax(self.Q_evaluation.predict(self.s)))]
+            # print('target',target,"state",self.s,predicted_Q_values[int(np.argmax(self.Q_evaluation.predict(self.s)))],np.argmax(self.Q_evaluation.predict(self.s)),self.Q_evaluation.predict(self.s))
             self.Q_action.train(self.s, self.a, target)
 
         if self.count_state%10 == 0:

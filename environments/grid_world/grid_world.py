@@ -9,7 +9,7 @@ from contracts import GameState
 class GridWorldGameState(GameState):
     def __init__(self):
 
-        self.world = np.array([
+        '''self.world = np.array([
             [1, 1, 1, 1, 1, 1, 1, 1],
             [1, 0, 1, 0, 0, 0, 0, 1],
             [1, 0, 0, 0, 0, 1, 3, 1],
@@ -18,8 +18,8 @@ class GridWorldGameState(GameState):
             [1, 0, 1, 1, 1, 1, 0, 1],
             [1, 0, 0, 0, 4, 1, 0, 1],
             [1, 1, 1, 1, 1, 1, 1, 1],
-        ])
-        '''self.world = np.array([
+        ])'''
+        self.world = np.array([
             [1, 1, 1, 1, 1, 1, 1, 1],
             [1, 0, 2, 0, 0, 0, 0, 1],
             [1, 0, 0, 0, 0, 1, 2, 1],
@@ -28,7 +28,7 @@ class GridWorldGameState(GameState):
             [1, 0, 1, 1, 1, 1, 0, 1],
             [1, 0, 0, 0, 3, 1, 0, 1],
             [1, 1, 1, 1, 1, 1, 1, 1],
-        ])'''  # 0 = Empty, 1 = Wall, 2 = Hole, 3 = Goal
+        ]) # 0 = Empty, 1 = Wall, 2 = Hole, 3 = Goal
         self.player_pos = np.array([1, 1])
         self.game_over = False
         self.current_step = 0

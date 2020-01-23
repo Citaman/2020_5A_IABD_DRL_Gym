@@ -11,21 +11,15 @@ import numpy as np
 
 import tensorflow as tf
 
-
-
-# si gs1 == gs2 => hash(gs1) == hash(gs2)
-# si gs1 != gs2 => hash(gs1) != hash(gs2) || hash(gs1) == hash(gs2)
-
-
 class ReinforceMeanBaseLineAgent(Agent):
     def __init__(self,
                  action_space_size: int,
-                 alpha: float = 0.00001,
+                 alpha: float = 0.001,
                  gamma: float = 0.999,
                  epsilon: float = 0.1,
                  ):
         self.Q_policy_function = ReinforceBrain(output_dim=action_space_size, learning_rate=alpha,
-                          hidden_layers_count=3,
+                          hidden_layers_count=5,
                           neurons_per_hidden_layer=128)
         self.action_space_size = action_space_size
         self.alpha = alpha
@@ -76,13 +70,13 @@ class ReinforceMeanBaseLineAgent(Agent):
             policy_gradient = []
             # Base line
             eps = 0.02
-            discounted_rewards = (discounted_rewards - discounted_rewards.mean()) / (discounted_rewards.std() + eps)
+            discounted_rewards = (discounted_rewards - discounted_rewards.mean()) # / (discounted_rewards.std() + eps)
 
             for log_prob, Gt in zip(self.log_probs, discounted_rewards):
                 policy_gradient.append(-log_prob * Gt)
 
 
-            print(Counter(self.action).most_common(4))
+            # print(Counter(self.action).most_common(4))
 
             self.Q_policy_function.train(self.state, self.a, policy_gradient)
 

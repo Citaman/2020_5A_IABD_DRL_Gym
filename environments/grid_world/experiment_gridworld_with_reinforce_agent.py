@@ -9,16 +9,16 @@ if __name__ == "__main__":
 
     for i in range(100):
         print(i)
-        run_for_n_games_and_print_stats([agent], gs, 500)
-        if i%10 == 0 :
+        run_for_n_games_and_print_stats([agent], gs, 1000)
+        if i % 10 == 0:
             while not gs.is_game_over():
                 run_step([agent], gs)
-                print(gs)
                 try:
                     print(agent.probs[-1])
                 except:
-                    print('FINI')
-            gs.__init__()
+                    pass
+                print(gs)
+        gs.__init__()
 
     for i in range(5):
         gs = gs.clone()
