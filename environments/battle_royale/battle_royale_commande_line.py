@@ -30,7 +30,7 @@ class BattleRoyalGameWorldTerminal(GameState):
         self.numberofGun = 0
         self.guns = []
         self.unique_id = ""
-        self.unique_id_vec = np.zeros(7 + (numberofPlayer - 1) * 3 + self.numberofGun * 3)
+        self.unique_id_vec = np.zeros(4 + (numberofPlayer - 1) * 3 ) # + self.numberofGun * 3)
         #self.unique_id_vec = np.zeros(7 + (numberofPlayer - 1) * 3)
         print('vec len',len(self.unique_id_vec))
 
@@ -106,13 +106,14 @@ class BattleRoyalGameWorldTerminal(GameState):
 
         self.unique_id_vec[0] = self.players[id].getX()/100
         self.unique_id_vec[1] = self.players[id].getY()/100
-        self.unique_id_vec[2] = self.players[id].health/50
-        self.unique_id_vec[3] = self.players[id].ammo_hit /(self.players[id].ammo_miss +1)
-        self.unique_id_vec[4] = self.players[id].player_hit_me
-        self.unique_id_vec[5] = self.players[id].kill
-        self.unique_id_vec[6] = len(self.playerwin)
+        self.unique_id_vec[2] = self.players[id].health / 25
+        # self.unique_id_vec[3] = self.players[id].ammo_hit /(self.players[id].ammo_miss +1)
+        # self.unique_id_vec[4] = self.players[id].player_hit_me
+        self.unique_id_vec[3] = self.players[id].kill
+        # self.unique_id_vec[6] = len(self.playerwin)
 
-        number = 7
+        number = 4
+
         for (i, el) in enumerate(self.players):
             if i is not id:
                 if i not in self.playersloose and (
@@ -128,7 +129,7 @@ class BattleRoyalGameWorldTerminal(GameState):
                     self.unique_id_vec[number + 1] = 0
                     self.unique_id_vec[number + 2] = 0
                     number += 3
-        for (i, el) in enumerate(self.guns):
+        '''for (i, el) in enumerate(self.guns):
             if (sqrt(pow(self.players[id].getX() - el.getX(), 2) + pow(self.players[id].getY() - el.getY(), 2))) <= 30:
                 # print('if', number, number + 1, number + 2)
                 self.unique_id_vec[number] = el.getX()/100
@@ -140,9 +141,10 @@ class BattleRoyalGameWorldTerminal(GameState):
                 self.unique_id_vec[number] = 0
                 self.unique_id_vec[number + 1] = 0
                 self.unique_id_vec[number + 2] = 0
-                number += 3
+                number += 3'''
 
         #print(len(self.unique_id_vec.round(2)))
+        #print(self.unique_id_vec.round(2))
 
     def init_game_variable(self, game_number ,numberofplayer, lvl, ratio_gun_player, list_agent):
         self.state = True
@@ -174,7 +176,7 @@ class BattleRoyalGameWorldTerminal(GameState):
 
     def init_game_method(self):
         self.add_player()
-        #self.add_gun()
+        self.add_gun()
 
     def add_player(self):
         #r = 80
@@ -220,16 +222,16 @@ class BattleRoyalGameWorldTerminal(GameState):
         #random.shuffle(self.guns)
 
     def play(self):
-
+        #print(self.frame_overall)
         self.death_or_not()
-
+        #print(self.list_agent)
         self.win_or_not()
         if not self.state:
             return
 
         self.agent_action()
 
-       # self.gun_action()
+        self.gun_action()
         if self.count_frame >= self.frame_skip:
             self.count_frame = -1
             #print(self.scores)
@@ -244,17 +246,30 @@ class BattleRoyalGameWorldTerminal(GameState):
             self.scores[self.playerwin[0]]+=20
             print("game world N°"+str(self.gameNumber)+" | "+"JOUEUR "+str(self.players[winnernumber].id) + " A GAGNE AVEC " + str(
              self.players[winnernumber].health) + " POINTS DE VIE" + " ET avec un ratio de "+str(
-             round((self.players[winnernumber].ammo_hit/self.players[winnernumber].ammonumber),4)*100)+"%  | Nombre de Hit : "+str(self.players[winnernumber].ammo_hit)+" Nombre de Shoot : "+str(self.players[winnernumber].ammonumber)+" | Gun "+str( self.players[winnernumber].gun.name if self.players[winnernumber].has_a_gun else None))
+             round((self.players[winnernumber].ammo_hit/self.players[winnernumber].ammonumber if self.players[winnernumber].ammonumber > 0 else 1 ),4)*100)+"%  | Nombre de Hit : "+str(self.players[winnernumber].ammo_hit)+" Nombre de Shoot : "+str(self.players[winnernumber].ammonumber)+" | Gun "+str( self.players[winnernumber].gun.name if self.players[winnernumber].has_a_gun else None))
             self.state = False
+            self.reward[winnernumber] = 20
+            for i, agent in enumerate(self.list_agent):
+                agent.observe(self.reward[i], True, i)
+
 
         if len(self.playerwin) == 0:
             # print("game world N°" + str(self.gameNumber) + " | NO WINNER ")
             self.state = False
 
+    def edge_plateau (self,el):
+        #print(el.X,el.Y)
+        if el.Y >= el.max_distance or el.X >= el.max_distance :
+            return True
+        elif el.Y <= -el.max_distance or el.X <= -el.max_distance :
+            return True
+        else:
+            return False
+
     def death_or_not(self):
         for (i, el) in enumerate(self.players):
             if i not in self.playersloose:
-                if el.get_health() <= 0:
+                if el.get_health() <= 0 :#or self.edge_plateau(el):
                     self.players[el.player_hit_me].kill += 1
                     self.scores[i] += -20
                     if self.players[i].has_a_gun:
@@ -285,7 +300,8 @@ class BattleRoyalGameWorldTerminal(GameState):
 
     def agent_action(self):
         old_scores = self.scores.copy()
-        action_per_agent=[]
+        #action_per_agent=[]
+        rewards = []
         for (i, el) in enumerate(self.players):
             if i not in self.playersloose:
                 if self.count_frame >= self.frame_skip:
@@ -293,7 +309,8 @@ class BattleRoyalGameWorldTerminal(GameState):
                     self.set_unique_id(i, el.getX(), el.getY())
                     self.set_unique_id_vec(i)
                     action = self.list_agent[i].act(gs=self)
-                    action_per_agent.append(action)
+                    el.past_action.append(action)
+                    #action_per_agent.append(action)
                     '''try:
                         print(self.list_agent[i].Q)
                     except:
@@ -322,19 +339,28 @@ class BattleRoyalGameWorldTerminal(GameState):
                 el.move()
                 el.attack(frame=self.frame_overall)
                 el.ammoshoot(time=time.time())
-                position = (int(el.getX() / 10) + 10) * 21 + (int(el.getY() / 10) + 10)
-                position_str = '0' * (3 - len(str(position))) + str(position)
-                if position_str not in el.discovery:
-                    el.discovery.append(position_str)
-                self.scores[i] = el.kill*1.5+ el.ammo_hit * 0.2 - el.ammo_miss * 0.1 + (el.health-50)*0.1  #+el.kill*0.5+ el.ammo_hit * 0.2 + len(el.discovery) *0.1 + (el.health-50)*0.1 - el.ammo_miss * 0.1
+                #position = (int(el.getX() / 10) + 10) * 21 + (int(el.getY() / 10) + 10)
+                #position_str = '0' * (3 - len(str(position))) + str(position)
+                #if position_str not in el.discovery:
+                #    el.discovery.append(position_str)
+
+
+                if len(el.past_action)>5 :
+                    #print(el.past_action)
+                    if len(list(set(el.past_action))) ==1 :
+                        el.repeat_action +=1
+                    el.past_action.pop(0)
+
+                self.scores[i] = el.kill*1 + el.ammo_hit*0.1 #round(el.ammo_hit/(el.ammonumber if el.ammonumber >0 else 1)  *1000,1) + el.kill*10 - el.ammo_miss  #+ el.ammo_hit*2  - el.ammo_miss + (el.health-50)  #+el.kill*0.5+ el.ammo_hit * 0.2 + len(el.discovery) *0.1 + (el.health-50)*0.1 - el.ammo_miss * 0.1
 
 
             new_scores = self.scores
             rewards = new_scores - old_scores
-            self.reward = rewards.copy()
-            # print(new_scores,old_scores)
-            for i, agent in enumerate(self.list_agent):
-                agent.observe(rewards[i], self.is_game_over(), i)
+
+        self.reward = rewards.copy()
+        #print(new_scores, old_scores)
+        for i, agent in enumerate(self.list_agent):
+            agent.observe(rewards[i], self.is_game_over(), i)
 
 
         #if self.count_frame >= self.frame_skip:
@@ -361,8 +387,7 @@ class BattleRoyalGameWorldTerminal(GameState):
             # return 1
             return self.frame_overall,len(self.playerwin)
         else :
-            for i, agent in enumerate(self.list_agent):
-                agent.observe(self.reward[i], True, i)
+
             #print("dnfodfojqdkslm,fndvbjfklpionqdklsoifqmjkd ln,opIJFGODKL,sijfomgjk")
             winnernumber = None
             if self.scores.sum() != 0 :
@@ -371,11 +396,19 @@ class BattleRoyalGameWorldTerminal(GameState):
                 print("game world N°" + str(self.gameNumber) + " | " + "JOUEUR " + str(
                     self.players[winnernumber].id) + " A GAGNE AVEC " + str(
                     self.players[winnernumber].health) + " POINTS DE VIE" + " ET avec un ratio de " + str(
-                    round((self.players[winnernumber].ammo_hit / self.players[winnernumber].ammonumber),
+                    round((self.players[winnernumber].ammo_hit / self.players[winnernumber].ammonumber if self.players[winnernumber].ammonumber >0 else 1 ),
                           4) * 100) + "%  | Nombre de Hit : " + str(
                     self.players[winnernumber].ammo_hit) + " Nombre de Shoot : " + str(
                     self.players[winnernumber].ammonumber) + " | Gun " + str(
                     self.players[winnernumber].gun.name if self.players[winnernumber].has_a_gun else None))
+                self.reward[winnernumber] = 20
+            else:
+                for (i, el) in enumerate(self.players):
+                    if i not in self.playersloose:
+                        self.reward[i] = -20
+                        self.scores[i] += -20
+            for i, agent in enumerate(self.list_agent):
+                agent.observe(self.reward[i], True, i)
             #self.state = False
             toc = time.time()
             print("game world N°" + str(self.gameNumber) + " | " + "Early Stoping | Stile : "+str(self.playerwin)+" |GAME FINISH IN : "+str(round(toc-tic,4)),"and scorces ",self.scores,self.scores[self.playerwin],winnernumber)

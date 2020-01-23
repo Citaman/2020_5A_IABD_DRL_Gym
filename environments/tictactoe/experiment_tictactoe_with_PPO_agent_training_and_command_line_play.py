@@ -1,4 +1,4 @@
-from agents import CommandLineAgent, DeepQLearningAgent, PPOAgent, RandomAgent
+from agents import CommandLineAgent, DeepQLearningAgent, PPOAgent, RandomAgent,ReinforceAgent
 from environments.tictactoe import TicTacToeGameState
 from runners import run_for_n_games_and_print_stats, run_step
 
@@ -7,7 +7,7 @@ if __name__ == "__main__":
     agent0 = PPOAgent(
         state_space_size=gs.get_vectorized_state().shape[0],
         action_space_size=gs.get_action_space_size())
-    agent1 = RandomAgent()
+    agent1 = ReinforceAgent(action_space_size=gs.get_action_space_size())
 
     for i in range(100):
         run_for_n_games_and_print_stats([agent0, agent1], gs, 5000)

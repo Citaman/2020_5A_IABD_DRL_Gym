@@ -112,12 +112,13 @@ class PPOAgent(Agent):
     def compute_gains_and_advantages(self):
         last_gain = 0.0
         for i in reversed(range(len(self.s))):
-            last_gain = self.r[i] + self.gamma * last_gain
+            last_gain = self.r[i] + last_gain * self.gamma
             self.buffer['states'].append(self.s[i])
             self.buffer['chosen_actions'].append(self.a[i])
             self.buffer['gains'].append(last_gain)
             self.buffer['advantages'].append(last_gain - self.v[i])
             self.buffer['masks'].append(self.m[i])
+        print(self.buffer['gains'])
 
     def train(self):
         #print("train")

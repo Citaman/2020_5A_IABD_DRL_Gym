@@ -12,7 +12,7 @@ from panda3d.core import *
 from agents import RandomAgent
 from contracts import GameState
 from environments.battle_royale.game import Player, Gun
-
+import time
 
 class BattleRoyale(GameState, ShowBase):
     def __init__(self,numberofPlayer = 6,lvl =0,ratio_gun_player=1.2,list_agent=[RandomAgent() for _ in range(6)]):
@@ -27,7 +27,8 @@ class BattleRoyale(GameState, ShowBase):
         self.unique_id = ""
         self.numberofGun = 0
         self.guns = []
-        self.unique_id_vec = np.zeros(7+(numberofPlayer-1)*3+self.numberofGun*3)
+        self.unique_id_vec = np.zeros(4+(numberofPlayer-1)*3)#+self.numberofGun*3)
+        self.tic = time.time()
 
 
     def player_count(self) -> int:
@@ -101,14 +102,15 @@ class BattleRoyale(GameState, ShowBase):
                     self.unique_id_vec[number] = el.getX() / 100
                     self.unique_id_vec[number + 1] = el.getY() / 100
                     self.unique_id_vec[number + 2] = el.health / 50
-                    number += 3
+                    number += 2
                 else:
                     # print('else',number, number + 1, number + 2)
                     self.unique_id_vec[number] = 0
                     self.unique_id_vec[number + 1] = 0
                     self.unique_id_vec[number + 2] = 0
-                    number += 3
-        for (i, el) in enumerate(self.guns):
+                    number += 2
+
+        '''for (i, el) in enumerate(self.guns):
             if (sqrt(pow(self.players[id].getX() - el.getX(), 2) + pow(self.players[id].getY() - el.getY(), 2))) <= 30:
                 # print('if', number, number + 1, number + 2)
                 self.unique_id_vec[number] = el.getX() / 100
@@ -120,9 +122,9 @@ class BattleRoyale(GameState, ShowBase):
                 self.unique_id_vec[number] = 0
                 self.unique_id_vec[number + 1] = 0
                 self.unique_id_vec[number + 2] = 0
-                number += 3
+                number += 3'''
 
-        #print(self.unique_id_vec.round(2))
+        print(self.unique_id_vec.round(2))
 
     def get_max_state_count(self) -> int:
         pass
@@ -150,6 +152,7 @@ class BattleRoyale(GameState, ShowBase):
         self.time2 = 0
         self.frame_skip = 4
         self.count_frame = self.frame_skip
+        self.frame_overall = 0
         self.level = lvl
         self.action_space_movement = 8
         self.action_space_direction = 2
@@ -358,6 +361,7 @@ class BattleRoyale(GameState, ShowBase):
         if self.count_frame >= self.frame_skip:
             self.count_frame = -1
         self.count_frame += 1
+        self.frame_overall += 1
         return task.cont
 
     def win_or_not(self):
@@ -367,6 +371,22 @@ class BattleRoyale(GameState, ShowBase):
             print(str(self.players[winnernumber].id) + " a gagné avec " + str(
                 self.players[winnernumber].health) + " points de vie")
             sys.exit()
+        elif self.frame_overall >=  550*4 :
+            winnernumber = int(self.playerwin[np.argmax(self.scores[self.playerwin])])
+            self.scores[winnernumber] += 20
+            print("game world N°" + str(0) + " | " + "JOUEUR " + str(
+                self.players[winnernumber].id) + " A GAGNE AVEC " + str(
+                self.players[winnernumber].health) + " POINTS DE VIE" + " ET avec un ratio de " + str(
+                round((self.players[winnernumber].ammo_hit / self.players[winnernumber].ammonumber),
+                      4) * 100) + "%  | Nombre de Hit : " + str(
+                self.players[winnernumber].ammo_hit) + " Nombre de Shoot : " + str(
+                self.players[winnernumber].ammonumber) + " | Gun " + str(
+                self.players[winnernumber].gun.name if self.players[winnernumber].has_a_gun else None))
+            print("game world N°" + str(0) + " | " + "Early Stoping | Stile : " + str(
+                self.playerwin) + " |GAME FINISH IN : " + str(round(time.time() - self.tic, 4)), "and scorces ", self.scores,
+                  self.scores[self.playerwin], winnernumber)
+            sys.exit()
+            #winornot = True
         return winornot
 
     def death_or_not(self):
@@ -429,12 +449,12 @@ class BattleRoyale(GameState, ShowBase):
                 el.move()
                 el.attack(render=self.render, time=time)
                 el.ammoshoot(time=time)
-                position = (int(el.getX() / 10) + 10) * 21 + (int(el.getY() / 10) + 10)
-                position_str = '0' * (3 - len(str(position))) + str(position)
-                if position_str not in el.discovery:
-                    el.discovery.append(position_str)
+                #position = (int(el.getX() / 10) + 10) * 21 + (int(el.getY() / 10) + 10)
+                #position_str = '0' * (3 - len(str(position))) + str(position)
+                #if position_str not in el.discovery:
+                #    el.discovery.append(position_str)
 
-                self.scores[i] =  el.kill*1.5+ el.ammo_hit * 0.02 #+ len(el.discovery) *0.01 + (el.health-50)*0.001 - el.ammo_miss * 0.001
+                self.scores[i] = el.kill*10 + el.ammo_hit  #+ len(el.discovery) *0.01 + (el.health-50)*0.001 - el.ammo_miss * 0.001
                 el.score = self.scores[i]
                 #print(len(el.discovery))
                 #print("X :",int(el.getX()),",X~ :",int(el.getX()/10),"Y :",int(el.getY()),"Y~ :", int(el.getY()/10), "Number case =",(int(el.getX()/10)+10)*21+(int(el.getY()/10)+10))
@@ -443,7 +463,7 @@ class BattleRoyale(GameState, ShowBase):
         rewards = new_scores - old_scores
         #print(new_scores,old_scores)
         #print(self.list_agent)
-        print(self.scores)
+        #print(self.scores)
         for i, agent in enumerate(self.list_agent):
             agent.observe(rewards[i], self.is_game_over(), i)
 

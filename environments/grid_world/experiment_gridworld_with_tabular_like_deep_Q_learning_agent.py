@@ -7,7 +7,7 @@ if __name__ == "__main__":
     agent = TabularLikeDeepQLearningAgent(action_space_size=4)
 
     for i in range(500):
-        run_for_n_games_and_print_stats([agent], gs, 100)
+        run_for_n_games_and_print_stats([agent], gs, 1)
 
     agent.epsilon = -1.0
     run_for_n_games_and_print_stats([agent], gs, 100)

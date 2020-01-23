@@ -17,6 +17,8 @@ class PlayerT:
 
         self.max_distance = 50
         self.reward = 0
+        self.past_action = []
+        self.repeat_action = 0
 
         self.shootTimeDelay = 0.0005
         self.shootTimeDelayNow = 0

@@ -19,7 +19,7 @@ class DoubleDeepQLearningAgent(Agent):
         self.Q_action = DQNBrain(output_dim=action_space_size, learning_rate=alpha,
                           hidden_layers_count=2,
                           neurons_per_hidden_layer=128)
-        self.Q_evaluation = DQNBrain(output_dim=action_space_size, learning_rate=alpha,
+        self.Q_evaluation = DQNBrain(output_dim=1, learning_rate=alpha,
                           hidden_layers_count=2,
                           neurons_per_hidden_layer=128)
         self.action_space_size = action_space_size
