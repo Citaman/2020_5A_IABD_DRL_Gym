@@ -1,22 +1,24 @@
 from agents import ReinforceAgent
 from environments import GridWorldGameState
 from runners import run_for_n_games_and_print_stats, run_step
-
+import tensorflow as tf
 if __name__ == "__main__":
+    tf.compat.v1.disable_eager_execution()
     gs = GridWorldGameState()
     agent = ReinforceAgent(action_space_size=4)
 
-    for i in range(10):
+    for i in range(100):
         print(i)
-        run_for_n_games_and_print_stats([agent], gs, 50)
-        while not gs.is_game_over():
-            run_step([agent], gs)
-            print(gs)
-            try:
-                print(agent.probs[-1])
-            except:
-                print('FINI')
-        gs.__init__()
+        run_for_n_games_and_print_stats([agent], gs, 500)
+        if i%10 == 0 :
+            while not gs.is_game_over():
+                run_step([agent], gs)
+                print(gs)
+                try:
+                    print(agent.probs[-1])
+                except:
+                    print('FINI')
+            gs.__init__()
 
     for i in range(5):
         gs = gs.clone()

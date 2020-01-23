@@ -44,7 +44,7 @@ class DoubleDeepQLearningAgent(Agent):
 
         if self.s is not None:
             target = self.r + self.gamma * self.Q_evaluation.predict(state_vec)
-            #print('target',target,"state",self.s)
+            print('target',target,"state",self.s)
             self.Q_action.train(self.s, self.a, target)
 
         if self.count_state%10 == 0:

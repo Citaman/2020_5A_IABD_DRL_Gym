@@ -20,12 +20,12 @@ import tensorflow as tf
 class ReinforceMeanBaseLineAgent(Agent):
     def __init__(self,
                  action_space_size: int,
-                 alpha: float = 0.009,
+                 alpha: float = 0.00001,
                  gamma: float = 0.999,
                  epsilon: float = 0.1,
                  ):
         self.Q_policy_function = ReinforceBrain(output_dim=action_space_size, learning_rate=alpha,
-                          hidden_layers_count=5,
+                          hidden_layers_count=3,
                           neurons_per_hidden_layer=128)
         self.action_space_size = action_space_size
         self.alpha = alpha
@@ -82,7 +82,7 @@ class ReinforceMeanBaseLineAgent(Agent):
                 policy_gradient.append(-log_prob * Gt)
 
 
-            # print(Counter(self.action).most_common(5))
+            print(Counter(self.action).most_common(4))
 
             self.Q_policy_function.train(self.state, self.a, policy_gradient)
 

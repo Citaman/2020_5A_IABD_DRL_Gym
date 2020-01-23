@@ -14,7 +14,7 @@ class PPOAgent(Agent):
                  alpha: float = 0.0001,
                  gamma: float = 0.999,
                  epsilon: float = 0.1,
-                 episodes_count_between_training: int = 10,
+                 episodes_count_between_training: int = 100,
                  ):
         self.critic = PPOValueBrain(
             learning_rate=alpha,
@@ -92,7 +92,7 @@ class PPOAgent(Agent):
             self.current_episode_count += 1
             self.r.append(self.r_temp)
             self.compute_gains_and_advantages()
-            print('current_episode_count',self.current_episode_count)
+            # print('current_episode_count',self.current_episode_count)
             if self.current_episode_count == self.episodes_count_between_training:
                 self.train()
                 self.buffer['states'].clear()
@@ -118,7 +118,7 @@ class PPOAgent(Agent):
             self.buffer['gains'].append(last_gain)
             self.buffer['advantages'].append(last_gain - self.v[i])
             self.buffer['masks'].append(self.m[i])
-        print(self.buffer['gains'])
+        #print(self.buffer['gains'])
 
     def train(self):
         #print("train")

@@ -21,12 +21,12 @@ import tensorflow as tf
 class ReinforceAgent(Agent):
     def __init__(self,
                  action_space_size: int,
-                 alpha: float = 0.05,
+                 alpha: float = 0.001,
                  gamma: float = 0.999,
                  epsilon: float = 0.1,
                  ):
         self.Q_policy_function = ReinforceBrain(output_dim=action_space_size, learning_rate=alpha,
-                          hidden_layers_count=5,
+                          hidden_layers_count=3,
                           neurons_per_hidden_layer=128)
         self.action_space_size = action_space_size
         self.alpha = alpha
@@ -56,7 +56,7 @@ class ReinforceAgent(Agent):
 
         self.state.append(state_vec)
         self.rewards.append(self.r)
-        self.log_probs.append(0.1*np.log(action_probs))
+        self.log_probs.append(np.log(action_probs))
         self.probs.append(action_probs)
         self.action.append(chosen_action)
         self.a.append(to_categorical(chosen_action, self.action_space_size))

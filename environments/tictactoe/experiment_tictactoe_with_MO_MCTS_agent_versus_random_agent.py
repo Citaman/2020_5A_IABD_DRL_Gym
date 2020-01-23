@@ -8,4 +8,4 @@ if __name__ == "__main__":
     agent1 = RandomAgent()
 
     for _ in range(1000):
-        run_for_n_games_and_print_stats([agent0, agent1], gs, 1000)
+        run_for_n_games_and_print_stats([agent0, agent1], gs, 10)

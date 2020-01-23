@@ -40,7 +40,7 @@ class DeepQLearningAgent(Agent):
 
         if self.s is not None:
             target = self.r + self.gamma * max(predicted_Q_values[available_actions])
-            #print('target',target,"state",self.s)
+            print('target',target,"state",self.s)
             self.Q.train(self.s, self.a, target)
 
         self.s = state_vec

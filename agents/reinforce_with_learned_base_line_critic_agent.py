@@ -49,6 +49,7 @@ class ReinforceLearnedBaseLineCriticAgent(Agent):
         available_actions = gs.get_available_actions(gs.get_active_player())
 
         state_vec = gs.get_vectorized_state()
+        #print(state_vec)
 
         action_probs = self.Q_policy_function.predict(state_vec)
         value_basline = self.Q_critic.predict(state_vec)
@@ -61,7 +62,7 @@ class ReinforceLearnedBaseLineCriticAgent(Agent):
         self.rewards.append(self.r)
         self.value_baseline.append(value_basline)
         self.probs.append(action_probs)
-        self.log_probs.append(0.1*np.log(action_probs))
+        self.log_probs.append(np.log(action_probs))
         self.action.append(chosen_action)
         self.a.append(to_categorical(chosen_action, self.action_space_size))
 
@@ -92,7 +93,7 @@ class ReinforceLearnedBaseLineCriticAgent(Agent):
                 value_gradient.append(-v_baseline * Gt_star)
 
             #sum = float(np.sum(np.concatenate(policy_gradient)))
-            print(Counter(self.action).most_common(5))
+            # print(Counter(self.action).most_common(5))
             self.Q_policy_function.train(self.state, self.a, policy_gradient)
             self.Q_critic.train(self.state,value_gradient)
             #weight = np.array(self.Q_policy_function.model.get_weights())

@@ -8,17 +8,18 @@ from contracts import GameState
 
 class GridWorldGameState(GameState):
     def __init__(self):
-        '''self.world = np.array([
+
+        self.world = np.array([
             [1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 0, 0, 0, 0, 0, 0, 1],
-            [1, 0, 0, 0, 0, 0, 0, 1],
-            [1, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 1, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 1, 3, 1],
+            [1, 1, 1, 0, 0, 0, 0, 1],
             [1, 0, 0, 0, 0, 0, 0, 1],
             [1, 0, 1, 1, 1, 1, 0, 1],
-            [1, 0, 0, 0, 3, 1, 0, 1],
+            [1, 0, 0, 0, 4, 1, 0, 1],
             [1, 1, 1, 1, 1, 1, 1, 1],
-        ])'''
-        self.world = np.array([
+        ])
+        '''self.world = np.array([
             [1, 1, 1, 1, 1, 1, 1, 1],
             [1, 0, 2, 0, 0, 0, 0, 1],
             [1, 0, 0, 0, 0, 1, 2, 1],
@@ -27,7 +28,7 @@ class GridWorldGameState(GameState):
             [1, 0, 1, 1, 1, 1, 0, 1],
             [1, 0, 0, 0, 3, 1, 0, 1],
             [1, 1, 1, 1, 1, 1, 1, 1],
-        ])  # 0 = Empty, 1 = Wall, 2 = Hole, 3 = Goal
+        ])'''  # 0 = Empty, 1 = Wall, 2 = Hole, 3 = Goal
         self.player_pos = np.array([1, 1])
         self.game_over = False
         self.current_step = 0
@@ -77,6 +78,7 @@ class GridWorldGameState(GameState):
             self.player_pos = target_pos
         elif target_type == 1:
             pass
+
         elif target_type == 2:
             self.game_over = True
             self.scores[player_index] += -1 * (0.99 ** self.current_step)
@@ -90,9 +92,9 @@ class GridWorldGameState(GameState):
         #add by anthonny
         elif target_type == 4:
             self.player_pos = target_pos
-
-            self.scores[player_index] += 0.5 * (0.99 ** self.current_step)
-            self.world[target_pos[0], target_pos[1]]=0
+            self.game_over = True
+            self.scores[player_index] += 100 * (0.99 ** self.current_step)
+            #self.world[target_pos[0], target_pos[1]]=0
             return
 
         if self.remaining_actions <= 0:
