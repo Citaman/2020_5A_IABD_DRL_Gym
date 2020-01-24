@@ -9,7 +9,7 @@ from tensorflow.keras.callbacks import TensorBoard
 import numpy as np
 
 
-class DQNBrain:
+class DDQNBrain:
     def __init__(self,
                  output_dim: int,
                  learning_rate: float = 0.0001,
@@ -34,3 +34,10 @@ class DQNBrain:
         # print(state,target_vec)
         # target_vec = np.array(chosen_action_mask) * np.array(target) + ( 1 - np.array(chosen_action_mask)) * self.model.predict(np.array(state))
         self.model.train_on_batch(x=np.array((state,)),y=np.array((target_vec,)))
+
+    def retrain(self, state: np.ndarray, chosen_action_mask: np.ndarray, target: float):
+        #target_vec = np.array(chosen_action_mask) * np.array(target) + ( 1 - np.array(chosen_action_mask)) * self.model.predict(np.array(state))
+
+        part_1 = np.array([el*np.array(target)[i] for i, el in enumerate(np.array(chosen_action_mask))])
+        target_vec = part_1 +(1 - np.array(chosen_action_mask)) * self.model.predict(np.array(state))
+        self.model.train_on_batch(x=np.array(state), y=np.array(target_vec))

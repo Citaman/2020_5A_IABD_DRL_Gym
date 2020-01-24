@@ -46,10 +46,10 @@ class ReinforceBaseLineCriticBrain:
             result[l[0]] = l[1]
         return result
 
-    @tf.function
+    '''@tf.function
     def write_tensorboard_file(self,step,logs):
         with self.writer.as_default():
-            tf.summary.scalar("loss", logs, step=step)
+            tf.summary.scalar("loss", logs, step=step)'''
 
     def train(self, state: list, target: list):
         # target_vec = np.array(chosen_action_mask) * np.array(target) + (1 - np.array(chosen_action_mask)) * self.model.predict(np.array(state))

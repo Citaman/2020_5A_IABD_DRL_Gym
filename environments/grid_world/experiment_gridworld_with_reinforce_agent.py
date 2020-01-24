@@ -1,4 +1,4 @@
-from agents import ReinforceAgent
+from agents import ReinforceAgent, DoubleDeepQLearningExprerienceReplayAgent
 from environments import GridWorldGameState
 from runners import run_for_n_games_and_print_stats, run_step
 import tensorflow as tf
@@ -9,7 +9,7 @@ if __name__ == "__main__":
 
     for i in range(100):
         print(i)
-        run_for_n_games_and_print_stats([agent], gs, 1000)
+        run_for_n_games_and_print_stats([agent], gs, 1)
         if i % 10 == 0:
             while not gs.is_game_over():
                 run_step([agent], gs)

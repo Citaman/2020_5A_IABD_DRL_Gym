@@ -1,5 +1,5 @@
 from tensorflow.python.keras.metrics import *
-from tensorflow.python.keras.utils import *
+from tensorflow.python.keras.utils.np_utils import *
 
 from brains import DQNBrain
 from contracts import Agent, GameState
