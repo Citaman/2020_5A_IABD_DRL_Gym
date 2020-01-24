@@ -1,12 +1,9 @@
-from tensorflow.python.keras.metrics import *
-from tensorflow.python.keras.utils import *
-
+from tensorflow.keras.utils import *
+import numpy as np
 from brains import DQNBrain
 from contracts import Agent, GameState
 from collections import deque
 
-# si gs1 == gs2 => hash(gs1) == hash(gs2)
-# si gs1 != gs2 => hash(gs1) != hash(gs2) || hash(gs1) == hash(gs2)
 
 
 class DeepQLearningExperienceReplayAgent(Agent):
@@ -47,7 +44,6 @@ class DeepQLearningExperienceReplayAgent(Agent):
 
         if len(self.experience) % 10 == 0:
             for el in self.experience :
-                #print(np.argmax(el[1]),el[0][0:2],el[3][0:2])
                 target = el[2] + self.gamma * el[1]
                 self.Q.train(el[0], el[1], target)
         self.s = state_vec

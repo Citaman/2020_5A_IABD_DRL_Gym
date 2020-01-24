@@ -1,13 +1,7 @@
-# from tensorflow.python.keras.metrics import *
 from tensorflow.keras.utils import *
 import numpy as np
 from brains import DQNBrain
 from contracts import Agent, GameState
-
-
-# si gs1 == gs2 => hash(gs1) == hash(gs2)
-# si gs1 != gs2 => hash(gs1) != hash(gs2) || hash(gs1) == hash(gs2)
-
 
 class DoubleDeepQLearningAgent(Agent):
     def __init__(self,
@@ -32,12 +26,11 @@ class DoubleDeepQLearningAgent(Agent):
         self.tau = 0.01
 
     def act(self, gs: GameState) -> int:
-        gs_unique_id = gs.get_unique_id()
         available_actions = gs.get_available_actions(gs.get_active_player())
 
         state_vec = gs.get_vectorized_state()
         predicted_Q_values = self.Q_action.predict(state_vec)
-        #print(predicted_Q_values.round(1))
+
         if np.random.random() <= self.epsilon:
             chosen_action = np.random.choice(available_actions)
         else:
@@ -45,14 +38,12 @@ class DoubleDeepQLearningAgent(Agent):
 
         if self.s is not None:
             target = self.r + self.gamma * predicted_Q_values[int(np.argmax(self.Q_evaluation.predict(self.s)))]
-            # print('target',target,"state",self.s,predicted_Q_values[int(np.argmax(self.Q_evaluation.predict(self.s)))],np.argmax(self.Q_evaluation.predict(self.s)),self.Q_evaluation.predict(self.s))
             self.Q_action.train(self.s, self.a, target)
 
-        #if self.count_state%10 == 0:
-            #self.Q_evaluation.model.set_weights(self.Q_action.model.get_weights())
         if self.s is not None:
             update_Q_evaluation = self.tau * np.array(self.Q_action.model.get_weights()) + (1 - self.tau) * np.array(self.Q_evaluation.model.get_weights())
             self.Q_evaluation.model.set_weights(update_Q_evaluation)
+
         self.s = state_vec
         self.a = to_categorical(chosen_action, self.action_space_size)
         self.r = 0.0

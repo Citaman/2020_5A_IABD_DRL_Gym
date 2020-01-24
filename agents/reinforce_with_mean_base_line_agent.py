@@ -1,15 +1,8 @@
 from collections import Counter
-
-from tensorflow.keras.metrics import *
 from tensorflow.keras.utils import *
-from brains import DQNBrain, ReinforceBrain
+from brains import ReinforceBrain
 from contracts import Agent, GameState
-
-import tensorflow.keras.backend as K
-
 import numpy as np
-
-import tensorflow as tf
 
 class ReinforceMeanBaseLineAgent(Agent):
     def __init__(self,
@@ -24,7 +17,6 @@ class ReinforceMeanBaseLineAgent(Agent):
         self.action_space_size = action_space_size
         self.alpha = alpha
         self.gamma = gamma
-
         self.action = []
         self.a = []
         self.r = 0.0
@@ -70,16 +62,14 @@ class ReinforceMeanBaseLineAgent(Agent):
             policy_gradient = []
             # Base line
             eps = 0.02
-            discounted_rewards = (discounted_rewards - discounted_rewards.mean()) # / (discounted_rewards.std() + eps)
+            discounted_rewards = (discounted_rewards - discounted_rewards.mean())/ (discounted_rewards.std() + eps)
 
             for log_prob, Gt in zip(self.log_probs, discounted_rewards):
                 policy_gradient.append(-log_prob * Gt)
 
 
             # print(Counter(self.action).most_common(4))
-
             self.Q_policy_function.train(self.state, self.a, policy_gradient)
-
 
             self.state = []
             self.rewards = []
@@ -88,7 +78,7 @@ class ReinforceMeanBaseLineAgent(Agent):
             self.a = []
             self.action = []
             self.r = 0.0
-            #self.Q_policy_function.tensorboard_callback.on_train_end(None)
+            # self.Q_policy_function.tensorboard_callback.on_train_end(None)
 
     def compute_gains_and_advantages(self):
         cumulative_reward = 0.0

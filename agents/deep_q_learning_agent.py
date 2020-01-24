@@ -1,13 +1,6 @@
-from tensorflow.python.keras.metrics import *
 from tensorflow.python.keras.utils.np_utils import *
-
 from brains import DQNBrain
 from contracts import Agent, GameState
-
-
-# si gs1 == gs2 => hash(gs1) == hash(gs2)
-# si gs1 != gs2 => hash(gs1) != hash(gs2) || hash(gs1) == hash(gs2)
-
 
 class DeepQLearningAgent(Agent):
     def __init__(self,
@@ -27,12 +20,10 @@ class DeepQLearningAgent(Agent):
         self.epsilon = epsilon
 
     def act(self, gs: GameState) -> int:
-        gs_unique_id = gs.get_unique_id()
         available_actions = gs.get_available_actions(gs.get_active_player())
 
         state_vec = gs.get_vectorized_state()
         predicted_Q_values = self.Q.predict(state_vec)
-        #print(predicted_Q_values.round(1))
         if np.random.random() <= self.epsilon:
             chosen_action = np.random.choice(available_actions)
         else:
@@ -40,7 +31,6 @@ class DeepQLearningAgent(Agent):
 
         if self.s is not None:
             target = self.r + self.gamma * max(predicted_Q_values[available_actions])
-            #print('target',target,"state",self.s,max(predicted_Q_values[available_actions]),predicted_Q_values[available_actions])
             self.Q.train(self.s, self.a, target)
 
         self.s = state_vec
